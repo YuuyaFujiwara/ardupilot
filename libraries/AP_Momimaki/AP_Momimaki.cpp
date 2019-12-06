@@ -1,7 +1,7 @@
 #include "AP_Momimaki.h"
 
 
-// include������
+// include未整理
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Relay/AP_Relay.h>
 #include <AP_Math/AP_Math.h>
@@ -17,6 +17,50 @@
 #define CAM_DEBUG DISABLED
 
 const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
+    
+    // @Param: DENSITY
+    // @DisplayName: Density of sowing
+    // @Description: Density of sowing
+    // @User: Standard
+    // @Units: pcs/m^2
+    // @Range: 0 10
+    AP_GROUPINFO("DENSITY",  0, AP_Momimaki, _density, AP_MOMIMAKI_DEFAULT_DENSITY ),
+    
+    // @Param: RADIUS
+    // @DisplayName: radius of sowing area
+    // @Description: radius of sowing area
+    // @User: Standard
+    // @Units: m
+    // @Range: 2 10
+    AP_GROUPINFO("RADIUS",  1, AP_Momimaki, _radius, AP_MOMIMAKI_DEFAULT_RADIUS ),
+
+    // @Param: ANGLE
+    // @DisplayName: angle of sowing area
+    // @Description: angle of sowing area
+    // @User: Standard
+    // @Units: degree
+    // @Range: 30 180
+    AP_GROUPINFO("ANGLE",  2, AP_Momimaki, _angle, AP_MOMIMAKI_DEFAULT_ANGLE ),
+
+    // @Param: R_TO_PRM
+    // @DisplayName: radius to pwm convert rate
+    // @Description: radius to pwm convert rate
+    // @User: Standard
+    // @Units: pcs/m^2
+    // @Range: 0 10
+    AP_GROUPINFO("R_TO_PRM",  3, AP_Momimaki, _r_to_pwm, AP_MOMIMAKI_DEFAULT_R_TO_PRM ),
+
+    // @Param: SOW_DENSITY
+    // @DisplayName: Density of sowing
+    // @Description: Density of sowing
+    // @User: Standard
+    // @Units: pcs/m^2
+    // @Range: 0 10
+    AP_GROUPINFO("F_TO_PRM",  4, AP_Momimaki, _feed_to_prm, AP_MOMIMAKI_DEFAULT_F_TO_PRM ),
+    
+#if false   
+    // 以下、AP_Cameraのパラメータ
+    
     // @Param: TRIGG_TYPE
     // @DisplayName: Camera shutter (trigger) type
     // @Description: how to trigger the camera to take a picture
@@ -107,7 +151,7 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
     // @Values: 0:Default,1:BMMCC
     // @User: Standard
     AP_GROUPINFO("TYPE",  11, AP_Camera, _type, 0),
-
+#endif
     AP_GROUPEND
 };
 
@@ -145,6 +189,7 @@ AP_Momimaki::relay_pic()
 ///  set send_mavlink_msg to true to send DO_DIGICAM_CONTROL message to all components
 void AP_Momimaki::trigger_pic()
 {
+#if false
     setup_feedback_callback();
 
     _image_index++;
@@ -158,6 +203,7 @@ void AP_Momimaki::trigger_pic()
     }
 
     log_picture();
+#endif
 }
 
 /// de-activate the trigger after some delay, but without using a delay() function
@@ -165,6 +211,7 @@ void AP_Momimaki::trigger_pic()
 void
 AP_Momimaki::trigger_pic_cleanup()
 {
+#if false
     if (_trigger_counter) {
         _trigger_counter--;
     } else {
@@ -196,6 +243,7 @@ AP_Momimaki::trigger_pic_cleanup()
             break;
         }
     }
+#endif
 }
 
 /// decode deprecated MavLink message that controls camera.

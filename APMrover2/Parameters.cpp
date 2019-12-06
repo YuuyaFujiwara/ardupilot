@@ -371,6 +371,14 @@ const AP_Param::Info Rover::var_info[] = {
     GOBJECT(osd, "OSD", AP_OSD),
 #endif
 
+#if MOMIMAKI_ENABLED == ENABLED
+    // @Group: MOMIMAKI
+    // @Path: ../libraries/AP_Momimaki/AP_Momimaki.cpp
+    GOBJECT( momimaki, "MOMIMAKI_", AP_Momimaki),
+#endif
+    
+    
+    
     AP_VAREND
 };
 
