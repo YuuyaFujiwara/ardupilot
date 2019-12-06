@@ -26,12 +26,12 @@
     #define AP_CAMERA_FEEDBACK_DEFAULT_FEEDBACK_PIN -1  // default is to not use camera feedback pin
 #endif
 
-/// @class	Camera
-/// @brief	Object managing a Photo or video camera
+/// @class	Momimaki
+/// @brief	Object managing momimaki unit
 class AP_Momimaki {
 
 public:
-    AP_Camera(uint32_t _log_camera_bit, const struct Location &_loc)
+    AP_Momimaki(uint32_t _log_camera_bit, const struct Location &_loc)
         : log_camera_bit(_log_camera_bit)
         , current_loc(_loc)
     {

@@ -261,6 +261,7 @@ void AP_Momimaki::configure(float shooting_mode, float shutter_speed, float aper
     // we cannot process the configure command so convert to mavlink message
     // and send to all components in case they and process it
 
+    mavlink_message_t msg;
     mavlink_command_long_t mav_cmd_long = {};
 
     // convert mission command to mavlink command_long
@@ -273,10 +274,14 @@ void AP_Momimaki::configure(float shooting_mode, float shutter_speed, float aper
     mav_cmd_long.param6 = cmd_id;
     mav_cmd_long.param7 = engine_cutoff_time;
 
-    // send to all components
-    GCS_MAVLINK::send_to_components(MAVLINK_MSG_ID_COMMAND_LONG, (char*)&mav_cmd_long, sizeof(mav_cmd_long));
+    // Encode Command long into MAVLINK msg
+    mavlink_msg_command_long_encode(0, 0, &msg, &mav_cmd_long);
 
-    if (_type == AP_Momimaki::CAMERA_TYPE_BMMCC) {
+    // send to all components
+    GCS_MAVLINK::send_to_components(msg);
+
+#if false
+    if (_type == AP_Camera::CAMERA_TYPE_BMMCC) {
         // Set a trigger for the additional functions that are flip controlled (so far just ISO and Record Start / Stop use this method, will add others if required)
         _trigger_counter_cam_function = constrain_int16(_trigger_duration*5,0,255);
 
@@ -298,6 +303,7 @@ void AP_Momimaki::configure(float shooting_mode, float shutter_speed, float aper
             SRV_Channels::set_output_pwm(SRV_Channel::k_cam_focus, (int)shooting_mode);
         }
     }
+#endif
 }
 
 void AP_Momimaki::control(float session, float zoom_pos, float zoom_step, float focus_lock, float shooting_cmd, float cmd_id)
@@ -307,6 +313,7 @@ void AP_Momimaki::control(float session, float zoom_pos, float zoom_step, float 
         trigger_pic();
     }
 
+    mavlink_message_t msg;
     mavlink_command_long_t mav_cmd_long = {};
 
     // convert command to mavlink command long
@@ -318,8 +325,11 @@ void AP_Momimaki::control(float session, float zoom_pos, float zoom_step, float 
     mav_cmd_long.param5 = shooting_cmd;
     mav_cmd_long.param6 = cmd_id;
 
+    // Encode Command long into MAVLINK msg
+    mavlink_msg_command_long_encode(0, 0, &msg, &mav_cmd_long);
+
     // send to all components
-    GCS_MAVLINK::send_to_components(MAVLINK_MSG_ID_COMMAND_LONG, (char*)&mav_cmd_long, sizeof(mav_cmd_long));
+    GCS_MAVLINK::send_to_components(msg);
 }
 
 /*
