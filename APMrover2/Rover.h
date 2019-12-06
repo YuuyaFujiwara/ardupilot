@@ -32,6 +32,7 @@
 #include <AP_BattMonitor/AP_BattMonitor.h>          // Battery monitor library
 #include <AP_Beacon/AP_Beacon.h>
 #include <AP_Camera/AP_Camera.h>                    // Camera triggering
+#include <AP_Momimaki/AP_Momimaki.h>                    // Momimaki forQL44
 #include <AP_Compass/AP_Compass.h>                  // ArduPilot Mega Magnetometer Library
 #include <AP_Declination/AP_Declination.h>          // Compass declination library
 #include <AP_InertialSensor/AP_InertialSensor.h>    // Inertial Sensor (uncalibated IMU) Library
@@ -202,6 +203,12 @@ private:
     AP_Camera camera{MASK_LOG_CAMERA, current_loc};
 #endif
 
+    // Momimaki for QL44
+    AP_Momimaki momimaki{ current_loc };
+    
+    
+    
+    
     // Camera/Antenna mount tracking and stabilisation stuff
 #if MOUNT == ENABLED
     AP_Mount camera_mount;

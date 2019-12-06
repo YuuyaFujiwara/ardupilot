@@ -361,6 +361,8 @@ const AP_Param::Info Rover::var_info[] = {
     // @Path: ../libraries/AP_Button/AP_Button.cpp
     GOBJECT(button, "BTN_",  AP_Button),
 
+    
+    
     // @Group:
     // @Path: Parameters.cpp
     GOBJECT(g2, "",  ParametersG2),
@@ -371,6 +373,13 @@ const AP_Param::Info Rover::var_info[] = {
     GOBJECT(osd, "OSD", AP_OSD),
 #endif
 
+
+#if true
+    // @Group: MOMIMAKI_
+    // @Path: ../libraries/AP_Momimaki/AP_Momimaki.cpp
+    GOBJECT(momimaki,                  "MOMIMAKI_", AP_Momimaki),
+#endif
+    
     AP_VAREND
 };
 

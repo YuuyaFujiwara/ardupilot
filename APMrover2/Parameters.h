@@ -209,6 +209,8 @@ public:
         k_param_button,
         k_param_osd,
 
+        k_param_momimaki,       // totech
+        
         k_param_logger = 253,  // Logging Group
 
         // 254,255: reserved

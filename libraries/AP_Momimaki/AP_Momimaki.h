@@ -31,9 +31,8 @@
 class AP_Momimaki {
 
 public:
-    AP_Momimaki(uint32_t _log_camera_bit, const struct Location &_loc)
-        : log_camera_bit(_log_camera_bit)
-        , current_loc(_loc)
+    AP_Momimaki(const struct Location &_loc)
+        :current_loc(_loc)
     {
         AP_Param::setup_object_defaults(this, var_info);
         _singleton = this;
@@ -136,7 +135,7 @@ private:
 
     void log_picture();
 
-    uint32_t log_camera_bit;
+//    uint32_t log_camera_bit;
     const struct Location &current_loc;
 
     // entry point to trip local shutter (e.g. by relay or servo)
