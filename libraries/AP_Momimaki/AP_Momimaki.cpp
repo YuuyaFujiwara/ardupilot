@@ -48,7 +48,7 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
     // @User: Standard
     // @Units: pcs/m^2
     // @Range: 0 10
-    AP_GROUPINFO("R_TO_PRM",  3, AP_Momimaki, _r_to_pwm, AP_MOMIMAKI_DEFAULT_R_TO_PRM ),
+    AP_GROUPINFO("R2PRM",  3, AP_Momimaki, _r_to_pwm, AP_MOMIMAKI_DEFAULT_R_TO_PRM ),
 
     // @Param: SOW_DENSITY
     // @DisplayName: Density of sowing
@@ -56,7 +56,7 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
     // @User: Standard
     // @Units: pcs/m^2
     // @Range: 0 10
-    AP_GROUPINFO("F_TO_PRM",  4, AP_Momimaki, _feed_to_prm, AP_MOMIMAKI_DEFAULT_F_TO_PRM ),
+    AP_GROUPINFO("F2PRM",  4, AP_Momimaki, _feed_to_prm, AP_MOMIMAKI_DEFAULT_F_TO_PRM ),
     
 #if false   
     // 以下、AP_Cameraのパラメータ
