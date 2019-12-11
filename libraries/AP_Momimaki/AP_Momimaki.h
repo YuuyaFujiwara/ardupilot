@@ -5,7 +5,7 @@
 #include <AP_Param/AP_Param.h>
 #include <GCS_MAVLink/GCS.h>
 
-// AP_MOMIMAKIで追加
+// AP_MOMIMAKI縺ｧ霑ｽ蜉�
 #define AP_MOMIMAKI_DEFAULT_DENSITY         1.0
 #define AP_MOMIMAKI_DEFAULT_RADIUS          2.0
 #define AP_MOMIMAKI_DEFAULT_ANGLE           60
@@ -31,11 +31,13 @@
 class AP_Momimaki {
 
 public:
-    AP_Momimaki(const struct Location &_loc)
-        :current_loc(_loc)
+    AP_Momimaki(const AR_AttitudeControl &_atti_ctrl)
+        :atti_ctrl(_loc)
     {
         AP_Param::setup_object_defaults(this, var_info);
         _singleton = this;
+
+        _mode_number = -1
     }
 
     /* Do not allow copies */
@@ -79,6 +81,11 @@ public:
         _is_in_auto_mode = enable;
     }
 
+    void set_mode( Mode::Number arg_new_mode )
+
+
+
+
     enum camera_types {
         CAMERA_TYPE_STD,
         CAMERA_TYPE_BMMCC
@@ -88,16 +95,32 @@ private:
 
     static AP_Momimaki *_singleton;
 
-    // AP_Momimaki追加パラメータ
+    // AP_Momimaki霑ｽ蜉�繝代Λ繝｡繝ｼ繧ｿ
     AP_Float        _density;           // density of sowing (pcs / m^2 )
     AP_Float        _radius;            // radius of sowing area
     AP_Int8         _angle;             // angle of sowing area
-    AP_Float        _r_to_pwm;          // radius to pwm convert rate
-    AP_Float        _feed_to_prm;       // feed_to_pwm convaert rate
+    //AP_Float        _r_to_pwm;          // radius to pwm convert rate
+    //AP_Float        _feed_to_pwm;       // feed_to_pwm convaert rate
+
+    AP_Float        _feeder_max_rpm;      // max rpm of feeder gear at full throttle
+    AP_Float        _feed_num_par_rotate; // feed num per gear rotation
+    AP_Int8         _feeder_pwm_ch;     // 籾送り出力CH
+
+
+    AP_Float    _spreader_max_radius;  // max radius of spreading at full throttle
+
+    AP_Int8     _spreader_pwm_ch;   // 籾拡散出力CH
+
+
+
+
+
     
     
+    Mode::Number    _mode_number;
     
-    // 以下、AP_Cameraのパラメータ
+
+    // 莉･荳九�、P_Camera縺ｮ繝代Λ繝｡繝ｼ繧ｿ
     AP_Int8         _trigger_type;      // 0:Servo,1:Relay
     AP_Int8         _trigger_duration;  // duration in 10ths of a second that the camera shutter is held open
     AP_Int8         _relay_on;          // relay value to trigger camera
@@ -107,7 +130,7 @@ private:
     uint8_t         _trigger_counter_cam_function;   // count of number of cycles alternative camera function has been held open
     AP_Int8         _auto_mode_only;    // if 1: trigger by distance only if in AUTO mode.
     AP_Int8         _type;              // Set the type of camera in use, will open additional parameters if set
-    bool            _is_in_auto_mode;   // true if in AUTO mode
+    //bool            _is_in_auto_mode;   // true if in AUTO mode
 
     void            servo_pic();        // Servo operated camera
     void            relay_pic();        // basic relay activation
@@ -137,6 +160,11 @@ private:
 
 //    uint32_t log_camera_bit;
     const struct Location &current_loc;
+    
+    const AR_AttitudeControl &atti_ctrl;
+    
+    
+    
 
     // entry point to trip local shutter (e.g. by relay or servo)
     void trigger_pic();

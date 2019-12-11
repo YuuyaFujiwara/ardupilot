@@ -267,6 +267,10 @@ bool Rover::set_mode(Mode &new_mode, ModeReason reason)
     camera.set_is_auto_mode(control_mode->mode_number() == Mode::Number::AUTO);
 #endif
 
+    // for QL44
+    momimaki.set_mode( control_mode->mode_number() );
+
+
     old_mode.exit();
 
     control_mode_reason = reason;

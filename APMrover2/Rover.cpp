@@ -307,6 +307,12 @@ void Rover::update_GPS(void)
 #if CAMERA == ENABLED
         camera.update();
 #endif
+        
+        // for QL44
+        momimaki.update();
+        
+        
+        
     }
 }
 

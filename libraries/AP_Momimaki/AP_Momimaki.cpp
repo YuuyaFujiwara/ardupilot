@@ -1,7 +1,8 @@
 #include "AP_Momimaki.h"
 
+#include <stdlib.h>
 
-// include未整理
+// include譛ｪ謨ｴ逅�
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Relay/AP_Relay.h>
 #include <AP_Math/AP_Math.h>
@@ -59,7 +60,7 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
     AP_GROUPINFO("F2PRM",  4, AP_Momimaki, _feed_to_prm, AP_MOMIMAKI_DEFAULT_F_TO_PRM ),
     
 #if false   
-    // 以下、AP_Cameraのパラメータ
+    // 莉･荳九�、P_Camera縺ｮ繝代Λ繝｡繝ｼ繧ｿ
     
     // @Param: TRIGG_TYPE
     // @DisplayName: Camera shutter (trigger) type
@@ -359,49 +360,150 @@ void AP_Momimaki::send_feedback(mavlink_channel_t chan)
 }
 
 
-/*  update; triggers by distance moved
-*/
-void AP_Momimaki::update()
+/*
+ * 籾送り、籾播きを動作させるかチェックする
+ */
+void AP_Momimaki::status_check( bool& feeder_sts, bool spreader_sts)
 {
+    feeder_sts = false;
+    spreader_sts = false;
+
+    if( _mode_number != Mode::Number::AUTO )
+    {
+        return;
+    }
+
+
     if (AP::gps().status() < AP_GPS::GPS_OK_FIX_3D) {
         return;
     }
 
-    if (is_zero(_trigg_dist)) {
+    if (is_zero(_density)) {
         return;
     }
-    if (_last_location.lat == 0 && _last_location.lng == 0) {
-        _last_location = current_loc;
+    if (is_zero(_radius)) {
         return;
     }
-    if (_last_location.lat == current_loc.lat && _last_location.lng == current_loc.lng) {
-        // we haven't moved - this can happen as update() may
-        // be called without a new GPS fix
+    if (is_zero(_angle)) {
         return;
     }
+    if (is_zero(_r_to_pwm)) {
+        return;
+    }
+    if (is_zero(_feed_to_prm)) {
+        return;
+    }
+}
 
+
+
+/*  update; triggers by distance moved
+*/
+void AP_Momimaki::update()
+{
+    bool feeder_sts;
+    bool spreader_sts;
+    
+    // 籾播きを動作させるか決める
+    status_check( feeder_sts, spreader_sts );
+    
+    
     if (current_loc.get_distance(_last_location) < _trigg_dist) {
         return;
     }
 
-    if (_max_roll > 0 && fabsf(AP::ahrs().roll_sensor*1e-2f) > _max_roll) {
-        return;
+    // 機体速度
+    float forward_speed;
+    if( !atti_ctrl.get_forward_speed(forward_speed) ) {
+        feeder_sts      = false;
+        spreader_sts    = false;
     }
+    
+    if( feeder_sts )
+    {
+        // 機体速度に応じても見送り量を決める
+        // 1秒あたりの籾送り量 momi_num : [pcs / sec ]
+        float momi_num = _density * _radius * forward_speed * radians(_angle) / 2.0;
 
-    if (_is_in_auto_mode != true && _auto_mode_only != 0) {
-        return;
+
+        // 1秒あたりの籾送り量から籾送りモーターの出力（Rate）を決める。
+        float feed_rate = Calc_Momiokuri_FeedRate( momi_num );
+        // 籾送り量　PWM出力
+        pwm_output( SRV_Channel::k_momimaki_feeder, feed_rate );
+    } else {
+        pwm_output( SRV_Channel::k_momimaki_feeder, 0.0 );
     }
-
-    uint32_t tnow = AP_HAL::millis();
-    if (tnow - _last_photo_time < (unsigned) _min_interval) {
-        return;
+    
+    if( spreader_sts )
+    {
+        // 籾拡散出力（Rate）
+        float spread_rate = _radius / _spreader_max_radius;
+        // 籾拡散量　PWM出力
+        pwm_output( SRV_Channel::k_momimaki_spreader, spread_rate );
     }
-
-    take_picture();
-
-    _last_location = current_loc;
-    _last_photo_time = tnow;
+    else
+    {
+        pwm_output( SRV_Channel::k_momimaki_spreader, 0 );
+    }
+    
+    
 }
+
+
+/*
+// 籾送り量と送り回転数（RPM）の換算
+// args   : 目的とする籾送り量[ num / sec ]
+// return : 必要な送り(最大送り量に対する％）
+ */
+float AP_Momimaki::Calc_Momiokuri_FeedRate( float tgt_num_per_sec )
+{
+    // データチェックしていないので注意
+    double feed_percentr = tgt_num_per_sec * 60.0 / _feeder_max_rpm / _feed_num_par_rotate;
+    if( feed_percentr > 100.0 ) feed_percentr = 100.0;
+    return feed_percentr;
+}
+
+
+/*
+// 籾送り量と送り回転数（RPM）の換算
+// args   : 籾播き半径[ m ]
+// return : 必要な拡散量(最大拡散量に対する％）
+ */
+float AP_Momimaki::Calc_Momiokuri_SpreadRate(  )
+{
+    // データチェックしていないので注意
+    double feed_percentr = tgt_radius * 60.0 / _feeder_max_rpm / _feed_num_par_rotate;
+    if( feed_percentr > 100.0 ) feed_percentr = 100.0;
+    return feed_percentr;
+}
+
+
+
+/*
+  set servo_out and angle_min/max, then calc_pwm and output a
+  value. This is used to move a AP_Mount servo
+ */
+void AP_Momimaki::pwm_output( SRV_Channel::Aux_servo_function_t function, float value )
+{
+    if (!function_assigned(function)) {
+        return;
+    }
+
+    float v = constrain_float( value, 0.0f, 1.0f);
+
+    for (uint8_t i = 0; i < NUM_SERVO_CHANNELS; i++) {
+        SRV_Channel* c = SRV_Channels::srv_channel(i);
+        if( c==nullptr ) continue;
+        if (c->function.get() == function) {
+            float v2 = c->get_reversed() ? (1-v) : v;
+            uint16_t pwm = c->servo_min + v2 * (c->servo_max - c->servo_min);
+            c->set_output_pwm(pwm);
+        }
+    }
+}
+
+
+
 
 #if false
 
