@@ -135,6 +135,17 @@ public:
         float meters;           // distance
     };
 
+    // set Momimaki control command structure for MAV_CMD_DO_SET_MOMIMAKI
+    // for QL44
+    struct PACKED Momimaki_Control {
+        uint8_t enable_spreader;      // 0   : disable
+        uint8_t enable_feeder;        // 0   : disable
+        float   spread_radius;        // < 0 : no change
+        float   spread_density;       // < 0 : no change
+    };
+
+
+
     // gripper command structure
     struct PACKED Gripper_Command {
         uint8_t num;            // gripper number
@@ -230,6 +241,10 @@ public:
 
         // cam trigg distance
         Cam_Trigg_Distance cam_trigg_dist;
+
+        //  Momimaki control for QL44
+        Momimaki_Control momimaki_control;
+
 
         // do-gripper
         Gripper_Command gripper;
@@ -586,6 +601,7 @@ private:
     bool start_command_do_servorelayevents(const AP_Mission::Mission_Command& cmd);
     bool start_command_camera(const AP_Mission::Mission_Command& cmd);
     bool start_command_parachute(const AP_Mission::Mission_Command& cmd);
+    bool start_command_momimaki(const AP_Mission::Mission_Command& cmd);    // for QL44
 };
 
 namespace AP {

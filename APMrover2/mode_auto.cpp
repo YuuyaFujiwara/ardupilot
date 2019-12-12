@@ -516,6 +516,10 @@ bool ModeAuto::verify_command(const AP_Mission::Mission_Command& cmd)
     case MAV_CMD_DO_GUIDED_LIMITS:
         return true;
 
+    case MAV_CMD_DO_SET_MOMIMAKI:
+        return true;
+
+
     default:
         // error message
         gcs().send_text(MAV_SEVERITY_WARNING, "Skipping invalid cmd #%i", cmd.id);

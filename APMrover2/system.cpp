@@ -268,7 +268,7 @@ bool Rover::set_mode(Mode &new_mode, ModeReason reason)
 #endif
 
     // for QL44
-    momimaki.set_mode( control_mode->mode_number() );
+    momimaki.set_is_auto_mode(control_mode->mode_number() == Mode::Number::AUTO);
 
 
     old_mode.exit();

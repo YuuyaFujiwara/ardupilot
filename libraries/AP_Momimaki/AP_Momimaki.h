@@ -4,13 +4,19 @@
 
 #include <AP_Param/AP_Param.h>
 #include <GCS_MAVLink/GCS.h>
+#include <APM_Control/AR_AttitudeControl.h>
 
 // AP_MOMIMAKI縺ｧ霑ｽ蜉�
 #define AP_MOMIMAKI_DEFAULT_DENSITY         1.0
 #define AP_MOMIMAKI_DEFAULT_RADIUS          2.0
 #define AP_MOMIMAKI_DEFAULT_ANGLE           60
-#define AP_MOMIMAKI_DEFAULT_R_TO_PRM        1000
-#define AP_MOMIMAKI_DEFAULT_F_TO_PRM        1000
+//#define AP_MOMIMAKI_DEFAULT_R_TO_PRM        1000
+//#define AP_MOMIMAKI_DEFAULT_F_TO_PRM        1000
+#define AP_MOMIMAKI_DEFAULT_FDR_MAX         100
+#define AP_MOMIMAKI_DEFAULT_FED_NPR         20
+#define AP_MOMIMAKI_DEFAULT_SPR_RAD_MAX     10.0
+
+
 
 #if false
     #define AP_CAMERA_TRIGGER_TYPE_SERVO                0
@@ -32,12 +38,11 @@ class AP_Momimaki {
 
 public:
     AP_Momimaki(const AR_AttitudeControl &_atti_ctrl)
-        :atti_ctrl(_loc)
+        :atti_ctrl(_atti_ctrl)
     {
         AP_Param::setup_object_defaults(this, var_info);
         _singleton = this;
 
-        _mode_number = -1
     }
 
     /* Do not allow copies */
@@ -50,6 +55,11 @@ public:
         return _singleton;
     }
 
+    // handle camera control
+    void control(bool enable_spreader, bool enable_feeder, float spread_radius, float spread_density );
+
+
+#if false
     // MAVLink methods
     void            control_msg(const mavlink_message_t &msg);
     void            send_feedback(mavlink_channel_t chan);
@@ -66,12 +76,16 @@ public:
     }
 
     void take_picture();
+#endif
+
 
     // Update - to be called periodically @at least 10Hz
     void update();
 
+#if false
     // update camera trigger - 50Hz
     void update_trigger();
+#endif
 
     static const struct AP_Param::GroupInfo        var_info[];
 
@@ -80,16 +94,21 @@ public:
     {
         _is_in_auto_mode = enable;
     }
+#if false
 
     void set_mode( Mode::Number arg_new_mode )
+    {
+        _mode_number = arg_new_mode;
+    }
+#endif
 
-
-
+#if false
 
     enum camera_types {
         CAMERA_TYPE_STD,
         CAMERA_TYPE_BMMCC
     };
+#endif
 
 private:
 
@@ -104,22 +123,27 @@ private:
 
     AP_Float        _feeder_max_rpm;      // max rpm of feeder gear at full throttle
     AP_Float        _feed_num_par_rotate; // feed num per gear rotation
-    AP_Int8         _feeder_pwm_ch;     // 籾送り出力CH
+    AP_Float        _spreader_max_radius;  // max radius of spreading at full throttle
 
-
-    AP_Float    _spreader_max_radius;  // max radius of spreading at full throttle
-
-    AP_Int8     _spreader_pwm_ch;   // 籾拡散出力CH
-
+//    AP_Int8         _feeder_pwm_ch;     // 籾送り出力CH
+//    AP_Int8     _spreader_pwm_ch;   // 籾拡散出力CH
 
 
 
+    void status_check( bool& feeder_sts, bool& spreader_sts);
 
+    float Calc_Momiokuri_FeedRate( float tgt_num_per_sec );
+
+    float Calc_Momiokuri_SpreadRate(void);
+
+    void pwm_output( SRV_Channel::Aux_servo_function_t function, float value );
     
     
-    Mode::Number    _mode_number;
-    
+//    Mode::Number    _mode_number;
+    bool            _is_in_auto_mode;   // true if in AUTO mode
+    const AR_AttitudeControl &atti_ctrl;
 
+#if false
     // 莉･荳九�、P_Camera縺ｮ繝代Λ繝｡繝ｼ繧ｿ
     AP_Int8         _trigger_type;      // 0:Servo,1:Relay
     AP_Int8         _trigger_duration;  // duration in 10ths of a second that the camera shutter is held open
@@ -161,7 +185,6 @@ private:
 //    uint32_t log_camera_bit;
     const struct Location &current_loc;
     
-    const AR_AttitudeControl &atti_ctrl;
     
     
     
@@ -178,7 +201,7 @@ private:
     {
         return _feedback_pin > 0;
     }
-
+#endif
 };
 
 namespace AP {

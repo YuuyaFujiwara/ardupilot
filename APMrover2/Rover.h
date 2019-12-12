@@ -204,7 +204,7 @@ private:
 #endif
 
     // Momimaki for QL44
-    AP_Momimaki momimaki{ current_loc };
+    AP_Momimaki momimaki{ g2.attitude_control };
     
     
     

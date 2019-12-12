@@ -430,6 +430,39 @@ SRV_Channels::move_servo(SRV_Channel::Aux_servo_function_t function,
     }
 }
 
+
+/*
+ 引数 value値( 0.0 ～ 1.0)　をサーボのmin～maxに換算して出力する。
+ */
+void SRV_Channels::move_servo_totech( SRV_Channel::Aux_servo_function_t function, float value )
+{
+    if (!function_assigned(function)) {
+        return;
+    }
+
+    float v = constrain_float( value, 0.0f, 1.0f);
+
+    for (uint8_t i = 0; i < NUM_SERVO_CHANNELS; i++) {
+        SRV_Channel &c = channels[i];
+        if (c.function.get() == function) {
+            float v2 = c.get_reversed()? (1-v) : v;
+            uint16_t pwm = c.servo_min + v2 * (c.servo_max - c.servo_min);
+            c.set_output_pwm(pwm);
+        }
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
 /*
   set the default channel an auxiliary output function should be on
  */

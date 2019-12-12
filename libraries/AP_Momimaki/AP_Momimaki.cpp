@@ -43,6 +43,7 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
     // @Range: 30 180
     AP_GROUPINFO("ANGLE",  2, AP_Momimaki, _angle, AP_MOMIMAKI_DEFAULT_ANGLE ),
 
+#if false
     // @Param: R_TO_PRM
     // @DisplayName: radius to pwm convert rate
     // @Description: radius to pwm convert rate
@@ -58,6 +59,39 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
     // @Units: pcs/m^2
     // @Range: 0 10
     AP_GROUPINFO("F2PRM",  4, AP_Momimaki, _feed_to_prm, AP_MOMIMAKI_DEFAULT_F_TO_PRM ),
+#endif
+
+
+
+
+
+
+    // @Param: FRMAX
+    // @DisplayName: max rpm of feeder
+    // @Description: max rpm of feeder gear at full throttle
+    // @User: Standard
+    // @Units: rpm
+    // @Range: 1 1000
+    AP_GROUPINFO("FRMAX",  3, AP_Momimaki, _feeder_max_rpm, AP_MOMIMAKI_DEFAULT_FDR_MAX ),
+
+    // @Param: FNPR
+    // @DisplayName: feed num per gear rotation
+    // @Description: feed num per gear rotation
+    // @User: Standard
+    // @Units: pcs / rotate
+    // @Range: 1 100
+    AP_GROUPINFO("FNPR",  4, AP_Momimaki, _feed_num_par_rotate, AP_MOMIMAKI_DEFAULT_FED_NPR ),
+
+
+    // @Param: SRMAX
+    // @DisplayName: max radius of spreading
+    // @Description: max radius of spreading at full throttle
+    // @User: Standard
+    // @Units: m
+    // @Range: 0.5 20
+    AP_GROUPINFO("SRMAX",  5, AP_Momimaki, _spreader_max_radius, AP_MOMIMAKI_DEFAULT_SPR_RAD_MAX ),
+
+
     
 #if false   
     // 莉･荳九�、P_Camera縺ｮ繝代Λ繝｡繝ｼ繧ｿ
@@ -158,6 +192,7 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
 
 extern const AP_HAL::HAL& hal;
 
+#if false
 /// Servo operated camera
 void
 AP_Momimaki::servo_pic()
@@ -246,7 +281,10 @@ AP_Momimaki::trigger_pic_cleanup()
     }
 #endif
 }
+#endif
 
+
+#if false
 /// decode deprecated MavLink message that controls camera.
 void
 AP_Momimaki::control_msg(const mavlink_message_t &msg)
@@ -306,9 +344,25 @@ void AP_Momimaki::configure(float shooting_mode, float shutter_speed, float aper
     }
 #endif
 }
+#endif
 
-void AP_Momimaki::control(float session, float zoom_pos, float zoom_step, float focus_lock, float shooting_cmd, float cmd_id)
+
+// AP_Mission::momimaki_controlから呼び出し
+void AP_Momimaki::control(bool enable_spreader, bool enable_feeder, float spread_radius, float spread_density )
 {
+    // とりあえず引数を取り出すだけ。
+    bool tmp1 = enable_spreader;
+    bool tmp2 = enable_feeder;
+    float tmp3 = spread_radius;
+    float tmp4 = spread_density;
+
+    // dummy for eliminate warnings
+    tmp2 = tmp1 && tmp2;
+    tmp4 = tmp3 - tmp4;
+
+
+
+#if false
     // take picture
     if (is_equal(shooting_cmd,1.0f)) {
         trigger_pic();
@@ -331,7 +385,11 @@ void AP_Momimaki::control(float session, float zoom_pos, float zoom_step, float 
 
     // send to all components
     GCS_MAVLINK::send_to_components(msg);
+#endif
 }
+
+
+#if false
 
 /*
   Send camera feedback to the GCS
@@ -358,17 +416,18 @@ void AP_Momimaki::send_feedback(mavlink_channel_t chan)
         ahrs.roll_sensor*1e-2f, ahrs.pitch_sensor*1e-2f, ahrs.yaw_sensor*1e-2f,
         0.0f, CAMERA_FEEDBACK_PHOTO, _camera_trigger_logged);
 }
+#endif
 
 
 /*
  * 籾送り、籾播きを動作させるかチェックする
  */
-void AP_Momimaki::status_check( bool& feeder_sts, bool spreader_sts)
+void AP_Momimaki::status_check( bool& feeder_sts, bool& spreader_sts)
 {
     feeder_sts = false;
     spreader_sts = false;
 
-    if( _mode_number != Mode::Number::AUTO )
+    if( !_is_in_auto_mode )
     {
         return;
     }
@@ -384,18 +443,20 @@ void AP_Momimaki::status_check( bool& feeder_sts, bool spreader_sts)
     if (is_zero(_radius)) {
         return;
     }
-    if (is_zero(_angle)) {
+    if(_angle == 0) {
         return;
     }
-    if (is_zero(_r_to_pwm)) {
+    if (is_zero(_feeder_max_rpm)) {
         return;
     }
-    if (is_zero(_feed_to_prm)) {
+    if (is_zero(_feed_num_par_rotate)) {
         return;
     }
+    if (is_zero(_spreader_max_radius)) {
+        return;
+    }
+
 }
-
-
 
 /*  update; triggers by distance moved
 */
@@ -404,17 +465,12 @@ void AP_Momimaki::update()
     bool feeder_sts;
     bool spreader_sts;
     
-    // 籾播きを動作させるか決める
+    // 籾播ききを動作させるか決める
     status_check( feeder_sts, spreader_sts );
     
-    
-    if (current_loc.get_distance(_last_location) < _trigg_dist) {
-        return;
-    }
-
     // 機体速度
     float forward_speed;
-    if( !atti_ctrl.get_forward_speed(forward_speed) ) {
+    if (!atti_ctrl.get_forward_speed(forward_speed) ) {
         feeder_sts      = false;
         spreader_sts    = false;
     }
@@ -457,7 +513,7 @@ void AP_Momimaki::update()
  */
 float AP_Momimaki::Calc_Momiokuri_FeedRate( float tgt_num_per_sec )
 {
-    // データチェックしていないので注意
+    // 値チェックしていないので注意
     double feed_percentr = tgt_num_per_sec * 60.0 / _feeder_max_rpm / _feed_num_par_rotate;
     if( feed_percentr > 100.0 ) feed_percentr = 100.0;
     return feed_percentr;
@@ -469,10 +525,10 @@ float AP_Momimaki::Calc_Momiokuri_FeedRate( float tgt_num_per_sec )
 // args   : 籾播き半径[ m ]
 // return : 必要な拡散量(最大拡散量に対する％）
  */
-float AP_Momimaki::Calc_Momiokuri_SpreadRate(  )
+float AP_Momimaki::Calc_Momiokuri_SpreadRate(void)
 {
-    // データチェックしていないので注意
-    double feed_percentr = tgt_radius * 60.0 / _feeder_max_rpm / _feed_num_par_rotate;
+    // 値チェックしていないので注意
+    double feed_percentr = _radius * 60.0 / _feeder_max_rpm / _feed_num_par_rotate;
     if( feed_percentr > 100.0 ) feed_percentr = 100.0;
     return feed_percentr;
 }
@@ -485,21 +541,21 @@ float AP_Momimaki::Calc_Momiokuri_SpreadRate(  )
  */
 void AP_Momimaki::pwm_output( SRV_Channel::Aux_servo_function_t function, float value )
 {
-    if (!function_assigned(function)) {
+    SRV_Channels::move_servo_totech(function, value );
+#if false
+    if (!SRV_Channels::function_assigned(function)) {
         return;
     }
 
     float v = constrain_float( value, 0.0f, 1.0f);
 
-    for (uint8_t i = 0; i < NUM_SERVO_CHANNELS; i++) {
-        SRV_Channel* c = SRV_Channels::srv_channel(i);
-        if( c==nullptr ) continue;
-        if (c->function.get() == function) {
-            float v2 = c->get_reversed() ? (1-v) : v;
-            uint16_t pwm = c->servo_min + v2 * (c->servo_max - c->servo_min);
-            c->set_output_pwm(pwm);
-        }
+    SRV_Channel* c = SRV_Channels::get_channel_for( function );
+    if( c != nullptr ) {
+        float v2 = c->get_reversed() ? (1-v) : v;
+        uint16_t pwm = c->servo_min + v2 * (c->servo_max - c->servo_min);
+        c->set_output_pwm(pwm);
     }
+#endif
 }
 
 

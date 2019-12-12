@@ -2,6 +2,7 @@
 
 #include <GCS_MAVLink/GCS.h>
 #include <AP_Camera/AP_Camera.h>
+#include <AP_Momimaki/AP_Momimaki.h>
 #include <AP_Gripper/AP_Gripper.h>
 #include <AP_Parachute/AP_Parachute.h>
 #include <AP_ServoRelayEvents/AP_ServoRelayEvents.h>
@@ -111,6 +112,34 @@ bool AP_Mission::start_command_camera(const AP_Mission::Mission_Command& cmd)
         return false;
     }
 }
+
+
+bool AP_Mission::start_command_momimaki(const AP_Mission::Mission_Command& cmd)
+{
+    AP_Momimaki *momimaki = AP::momimaki();
+    if (momimaki == nullptr) {
+        return false;
+    }
+
+    switch (cmd.id) {
+
+    case MAV_CMD_DO_SET_MOMIMAKI:
+        momimaki->control(
+            cmd.content.momimaki_control.enable_spreader,
+            cmd.content.momimaki_control.enable_feeder,
+            cmd.content.momimaki_control.spread_radius,
+            cmd.content.momimaki_control.spread_density );
+        return true;
+
+    default:
+#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
+        AP_HAL::panic("Unhandled momimaki case");
+#endif
+        return false;
+    }
+}
+
+
 
 bool AP_Mission::start_command_parachute(const AP_Mission::Mission_Command& cmd)
 {
