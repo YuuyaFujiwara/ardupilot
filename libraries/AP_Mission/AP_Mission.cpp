@@ -274,7 +274,7 @@ bool AP_Mission::verify_command(const Mission_Command& cmd)
     case MAV_CMD_DO_DIGICAM_CONTROL:
     case MAV_CMD_DO_SET_CAM_TRIGG_DIST:
     case MAV_CMD_DO_PARACHUTE:
-    case MAV_CMD_DO_SET_MOMIMAKI:
+    case MAV_CMD_USER_5:    // QL44籾播き。　MAV_CMD_DO_SET_MOMIMAKIの代わり
         return true;
     default:
         return _cmd_verify_fn(cmd);
@@ -299,7 +299,7 @@ bool AP_Mission::start_command(const Mission_Command& cmd)
         return start_command_camera(cmd);
     case MAV_CMD_DO_PARACHUTE:
         return start_command_parachute(cmd);
-    case MAV_CMD_DO_SET_MOMIMAKI:
+    case MAV_CMD_USER_5:   // QL44籾播き。　MAV_CMD_DO_SET_MOMIMAKIの代わり
         return start_command_momimaki(cmd);
     default:
         return _cmd_start_fn(cmd);
@@ -905,8 +905,11 @@ MAV_MISSION_RESULT AP_Mission::mavlink_int_to_mission_cmd(const mavlink_mission_
         cmd.content.cam_trigg_dist.meters = packet.param1;  // distance between camera shots in meters
         break;
 
-    case MAV_CMD_DO_SET_MOMIMAKI:
-        cmd.p1 = packet.param1;                         // とりあえず
+    case MAV_CMD_USER_5:    // QL44籾播き。　MAV_CMD_DO_SET_MOMIMAKIの代わり
+        cmd.content.momimaki_control.enable_spreader = packet.param1;
+        cmd.content.momimaki_control.enable_feeder = packet.param2;
+        cmd.content.momimaki_control.spread_radius =  packet.param3;
+        cmd.content.momimaki_control.spread_density = packet.param4;
         break;
 
     case MAV_CMD_DO_FENCE_ENABLE:                       // MAV ID: 207
@@ -1341,8 +1344,11 @@ bool AP_Mission::mission_cmd_to_mavlink_int(const AP_Mission::Mission_Command& c
         packet.param1 = cmd.content.cam_trigg_dist.meters;  // distance between camera shots in meters
         break;
 
-    case MAV_CMD_DO_SET_MOMIMAKI:
-        packet.param1 = cmd.p1;                         // とりあえず
+    case MAV_CMD_USER_5:        // QL44籾播き。　MAV_CMD_DO_SET_MOMIMAKIの代わり
+        packet.param1 = cmd.content.momimaki_control.enable_spreader;
+        packet.param2 = cmd.content.momimaki_control.enable_feeder;
+        packet.param3 = cmd.content.momimaki_control.spread_radius;
+        packet.param4 = cmd.content.momimaki_control.spread_density;
         break;
 
 
@@ -1917,7 +1923,7 @@ const char *AP_Mission::Mission_Command::type() const {
         return "DigiCamCtrl";
     case MAV_CMD_DO_SET_CAM_TRIGG_DIST:
         return "SetCamTrigDst";
-    case MAV_CMD_DO_SET_MOMIMAKI:
+    case MAV_CMD_USER_5:    // QL44籾播き。　MAV_CMD_DO_SET_MOMIMAKIの代わり
         return "SetMomimakiCtrl";
     case MAV_CMD_DO_SET_ROI:
         return "SetROI";

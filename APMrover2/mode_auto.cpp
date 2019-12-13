@@ -516,7 +516,7 @@ bool ModeAuto::verify_command(const AP_Mission::Mission_Command& cmd)
     case MAV_CMD_DO_GUIDED_LIMITS:
         return true;
 
-    case MAV_CMD_DO_SET_MOMIMAKI:
+    case MAV_CMD_USER_5:    // QL44籾播き。　MAV_CMD_DO_SET_MOMIMAKIの代わり
         return true;
 
 

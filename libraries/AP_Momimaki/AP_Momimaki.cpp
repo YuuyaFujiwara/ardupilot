@@ -348,16 +348,28 @@ void AP_Momimaki::configure(float shooting_mode, float shutter_speed, float aper
 
 
 // AP_Mission::momimaki_controlから呼び出し
-void AP_Momimaki::control(bool enable_spreader, bool enable_feeder, float spread_radius, float spread_density )
+//void AP_Momimaki::control(bool enable_spreader, bool enable_feeder, float spread_radius, float spread_density )
+void AP_Momimaki::control(int8_t enable_spreader, int8_t enable_feeder, float spread_radius, float spread_density )
 {
+    gcs().send_text(MAV_SEVERITY_NOTICE, "AP_Momimaki::control() was called");
+
+
+    gcs().send_text(MAV_SEVERITY_INFO, "( %d, %d, %f, %f )",
+            static_cast<int>( enable_spreader ),
+            static_cast<int>( enable_feeder ),
+            static_cast<double>( spread_radius ),
+            static_cast<double>( spread_density ) );
+
+
+
     // とりあえず引数を取り出すだけ。
-    bool tmp1 = enable_spreader;
-    bool tmp2 = enable_feeder;
+    float tmp1 = enable_spreader;
+    float tmp2 = enable_feeder;
     float tmp3 = spread_radius;
     float tmp4 = spread_density;
 
     // dummy for eliminate warnings
-    tmp2 = tmp1 && tmp2;
+    tmp2 = tmp1 - tmp2;
     tmp4 = tmp3 - tmp4;
 
 

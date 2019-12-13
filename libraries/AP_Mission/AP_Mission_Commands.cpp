@@ -123,8 +123,14 @@ bool AP_Mission::start_command_momimaki(const AP_Mission::Mission_Command& cmd)
 
     switch (cmd.id) {
 
-    case MAV_CMD_DO_SET_MOMIMAKI:
-        momimaki->control(
+    case MAV_CMD_USER_5:    // QL44籾播き。　MAV_CMD_DO_SET_MOMIMAKIの代わり
+        gcs().send_text(MAV_SEVERITY_NOTICE, "start_command_momimaki( %d, %d, %f, %f ) was called",
+                cmd.content.momimaki_control.enable_spreader,
+                cmd.content.momimaki_control.enable_feeder,
+                cmd.content.momimaki_control.spread_radius,
+                cmd.content.momimaki_control.spread_density );
+
+         momimaki->control(
             cmd.content.momimaki_control.enable_spreader,
             cmd.content.momimaki_control.enable_feeder,
             cmd.content.momimaki_control.spread_radius,

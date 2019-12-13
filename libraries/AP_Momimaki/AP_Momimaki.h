@@ -56,7 +56,8 @@ public:
     }
 
     // handle camera control
-    void control(bool enable_spreader, bool enable_feeder, float spread_radius, float spread_density );
+//    void control(bool enable_spreader, bool enable_feeder, float spread_radius, float spread_density );
+    void control(int8_t enable_spreader, int8_t enable_feeder, float spread_radius, float spread_density );
 
 
 #if false

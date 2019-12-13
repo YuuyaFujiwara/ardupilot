@@ -135,7 +135,7 @@ public:
         float meters;           // distance
     };
 
-    // set Momimaki control command structure for MAV_CMD_DO_SET_MOMIMAKI
+    // set Momimaki control command structure for MAV_CMD_DO_SET_MOMIMAKI（MAV_CMD_USER_5）
     // for QL44
     struct PACKED Momimaki_Control {
         uint8_t enable_spreader;      // 0   : disable
@@ -143,8 +143,6 @@ public:
         float   spread_radius;        // < 0 : no change
         float   spread_density;       // < 0 : no change
     };
-
-
 
     // gripper command structure
     struct PACKED Gripper_Command {
