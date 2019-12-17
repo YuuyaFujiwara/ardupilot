@@ -43,6 +43,11 @@ public:
         AP_Param::setup_object_defaults(this, var_info);
         _singleton = this;
 
+        _enable_spreader = false;
+        _enable_feeder = false;
+
+        _density = _default_density;
+        _radius = _default_radius;
     }
 
     /* Do not allow copies */
@@ -56,7 +61,6 @@ public:
     }
 
     // handle camera control
-//    void control(bool enable_spreader, bool enable_feeder, float spread_radius, float spread_density );
     void control(int8_t enable_spreader, int8_t enable_feeder, float spread_radius, float spread_density );
 
 
@@ -116,8 +120,8 @@ private:
     static AP_Momimaki *_singleton;
 
     // AP_Momimaki霑ｽ蜉�繝代Λ繝｡繝ｼ繧ｿ
-    AP_Float        _density;           // density of sowing (pcs / m^2 )
-    AP_Float        _radius;            // radius of sowing area
+    AP_Float        _default_density;           // density of sowing (pcs / m^2 )
+    AP_Float        _default_radius;            // radius of sowing area
     AP_Int8         _angle;             // angle of sowing area
     //AP_Float        _r_to_pwm;          // radius to pwm convert rate
     //AP_Float        _feed_to_pwm;       // feed_to_pwm convaert rate
@@ -143,6 +147,13 @@ private:
 //    Mode::Number    _mode_number;
     bool            _is_in_auto_mode;   // true if in AUTO mode
     const AR_AttitudeControl &atti_ctrl;
+
+    bool _enable_spreader;       // 籾拡散 ON/OFF
+    bool _enable_feeder;        // 籾送り ON/OFF
+
+    float _density;
+    float _radius;
+
 
 #if false
     // 莉･荳九�、P_Camera縺ｮ繝代Λ繝｡繝ｼ繧ｿ

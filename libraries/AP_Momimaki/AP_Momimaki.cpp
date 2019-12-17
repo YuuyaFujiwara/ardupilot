@@ -25,7 +25,7 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
     // @User: Standard
     // @Units: pcs/m^2
     // @Range: 0 10
-    AP_GROUPINFO("DENSITY",  0, AP_Momimaki, _density, AP_MOMIMAKI_DEFAULT_DENSITY ),
+    AP_GROUPINFO("DENSITY",  0, AP_Momimaki, _default_density, AP_MOMIMAKI_DEFAULT_DENSITY ),
     
     // @Param: RADIUS
     // @DisplayName: radius of sowing area
@@ -33,7 +33,7 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
     // @User: Standard
     // @Units: m
     // @Range: 2 10
-    AP_GROUPINFO("RADIUS",  1, AP_Momimaki, _radius, AP_MOMIMAKI_DEFAULT_RADIUS ),
+    AP_GROUPINFO("RADIUS",  1, AP_Momimaki, _default_radius, AP_MOMIMAKI_DEFAULT_RADIUS ),
 
     // @Param: ANGLE
     // @DisplayName: angle of sowing area
@@ -354,23 +354,35 @@ void AP_Momimaki::control(int8_t enable_spreader, int8_t enable_feeder, float sp
     gcs().send_text(MAV_SEVERITY_NOTICE, "AP_Momimaki::control() was called");
 
 
-    gcs().send_text(MAV_SEVERITY_INFO, "( %d, %d, %f, %f )",
+    gcs().send_text(MAV_SEVERITY_INFO, "AP_Momimaki::control( %d, %d, %f, %f )",
             static_cast<int>( enable_spreader ),
             static_cast<int>( enable_feeder ),
             static_cast<double>( spread_radius ),
             static_cast<double>( spread_density ) );
 
+    _enable_spreader = (bool)enable_spreader;
+    _enable_feeder = (bool)enable_feeder;
+
+    // 送り動かす場合は拡散も動かすこと。
+    if( _enable_feeder )
+        _enable_spreader = true;
 
 
-    // とりあえず引数を取り出すだけ。
-    float tmp1 = enable_spreader;
-    float tmp2 = enable_feeder;
-    float tmp3 = spread_radius;
-    float tmp4 = spread_density;
+    // 半径更新
+    if( spread_radius >= 0.0 )
+        _radius = spread_radius;
+    else
+        _radius = _default_radius;      // パラメータ値
 
-    // dummy for eliminate warnings
-    tmp2 = tmp1 - tmp2;
-    tmp4 = tmp3 - tmp4;
+    // 密度更新
+    if( spread_density >= 0.0 )
+        _density = spread_density;
+    else
+        _density = _default_density;    // パラメータ値
+
+
+    // サーボ出力に反映する
+    update();
 
 
 
@@ -468,6 +480,10 @@ void AP_Momimaki::status_check( bool& feeder_sts, bool& spreader_sts)
         return;
     }
 
+    // waypointsコマンドによるON/OFFを反映
+    spreader_sts = _enable_spreader;
+    feeder_sts   =_enable_feeder;
+
 }
 
 /*  update; triggers by distance moved
@@ -502,6 +518,7 @@ void AP_Momimaki::update()
         pwm_output( SRV_Channel::k_momimaki_feeder, 0.0 );
     }
     
+
     if( spreader_sts )
     {
         // 籾拡散出力（Rate）
@@ -554,6 +571,33 @@ float AP_Momimaki::Calc_Momiokuri_SpreadRate(void)
 void AP_Momimaki::pwm_output( SRV_Channel::Aux_servo_function_t function, float value )
 {
     SRV_Channels::move_servo_totech(function, value );
+
+
+    // for debug
+    // 以下デバッグ用に表示
+    static float bkup_feeder_val = 0;
+    static float bkup_spreader_val = 0;
+
+    if( function == SRV_Channel::k_momimaki_feeder)
+    {
+        if( fabs( bkup_feeder_val - value ) > 0.01 )
+        {
+            gcs().send_text(MAV_SEVERITY_NOTICE, "SRV_Channel::k_momimaki_feeder pwm changed to %f", value );
+
+            bkup_feeder_val = value;
+        }
+    }
+    if( function == SRV_Channel::k_momimaki_spreader)
+    {
+        if( fabs(bkup_spreader_val - value) > 0.01 )
+        {
+            gcs().send_text(MAV_SEVERITY_NOTICE, "SRV_Channel::k_momimaki_spreader pwm changed to %f", value );
+
+            bkup_spreader_val = value;
+        }
+    }
+
+
 #if false
     if (!SRV_Channels::function_assigned(function)) {
         return;

@@ -65,7 +65,9 @@ public:
         k_elevator_with_input   = 20,            ///< elevator, with rc input, deprecated
         k_rudder                = 21,            ///< secondary rudder channel
         k_sprayer_pump          = 22,            ///< crop sprayer pump channel
+        k_momimaki_feeder       = 22,            ///< for QL44
         k_sprayer_spinner       = 23,            ///< crop sprayer spinner channel
+        k_momimaki_spreader     = 23,            ///< for QL44
         k_flaperon_left         = 24,            ///< flaperon, left wing
         k_flaperon_right        = 25,            ///< flaperon, right wing
         k_steering              = 26,            ///< ground steering, used to separate from rudder
@@ -151,8 +153,6 @@ public:
         k_pitch_out             = 125,
         k_thrust_out            = 126,
         k_yaw_out               = 127,
-        k_momimaki_feeder       = 128,
-        k_momimaki_spreader     = 129,
         k_nr_aux_servo_functions         ///< This must be the last enum value (only add new values _before_ this one)
     } Aux_servo_function_t;
 
