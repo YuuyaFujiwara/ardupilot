@@ -69,6 +69,15 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
     // @Range: 0.5 20
     AP_GROUPINFO("SRMAX",  5, AP_Momimaki, _spreader_max_radius, AP_MOMIMAKI_DEFAULT_SPR_RAD_MAX ),
 
+
+    // @Param: SRMAX
+    // @DisplayName: max radius of spreading
+    // @Description: max radius of spreading at full throttle
+    // @User: Standard
+    // @Units: m
+    // @Range: 0.5 20
+    AP_GROUPINFO("DBG_SPD",  6, AP_Momimaki, _debug_vehicle_speed, -1 ),
+
     AP_GROUPEND
 };
 
@@ -169,14 +178,33 @@ void AP_Momimaki::update()
     
     // 籾播ききを動作させるか決める
     status_check( feeder_sts, spreader_sts );
-    
+
+#if false
     // 機体速度
     float forward_speed;
     if (!atti_ctrl.get_forward_speed(forward_speed) ) {
         feeder_sts      = false;
         spreader_sts    = false;
     }
+#else
+    // 機体速度
+    float forward_speed;
+    // debug用 機体速度をパラメータで与える。
+    if( _debug_vehicle_speed < 0.0 )
+    {
+        if (!atti_ctrl.get_forward_speed(forward_speed) ) {
+            feeder_sts      = false;
+            spreader_sts    = false;
+        }
+    }
+    else
+    {
+        forward_speed = _debug_vehicle_speed;
+
+    }
+#endif
     
+
     if( feeder_sts )
     {
         // 機体速度に応じても見送り量を決める

@@ -34,6 +34,9 @@ public:
 
         _density = _default_density;
         _radius = _default_radius;
+
+
+
     }
 
     /* Do not allow copies */
@@ -80,6 +83,7 @@ private:
 //    AP_Int8         _feeder_pwm_ch;     // 籾送り出力CH
 //    AP_Int8     _spreader_pwm_ch;   // 籾拡散出力CH
 
+    AP_Float        _debug_vehicle_speed;  // デバッグ用に機体速度を外部から与える。
 
 
     void status_check( bool& feeder_sts, bool& spreader_sts);
@@ -100,6 +104,8 @@ private:
 
     float _density;
     float _radius;
+
+
 
 };
 
