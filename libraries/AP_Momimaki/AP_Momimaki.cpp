@@ -134,11 +134,31 @@ void AP_Momimaki::status_check( bool& feeder_sts, bool& spreader_sts)
     feeder_sts = false;
     spreader_sts = false;
 
+
+
+
+#if true
+    // for debug AutoMode以外でも動かす
+    if( _debug_vehicle_speed > 0.0 )
+    {
+        feeder_sts = true;
+        spreader_sts = true;
+
+        _radius = _default_radius;
+        _density = _default_density;    // パラメータ値
+
+        return;
+    }
+
+#endif
+
+
+
+
     if( !_is_in_auto_mode )
     {
         return;
     }
-
 
     if (AP::gps().status() < AP_GPS::GPS_OK_FIX_3D) {
         return;
@@ -216,6 +236,9 @@ void AP_Momimaki::update()
         float feed_rate = Calc_Momiokuri_FeedRate( momi_num );
         // 籾送り量　PWM出力
         pwm_output( SRV_Channel::k_momimaki_feeder, feed_rate );
+
+  //      gcs().send_text(MAV_SEVERITY_NOTICE, "SRV_Channel::k_momimaki_feeder = %f", feed_rate );
+
     } else {
         pwm_output( SRV_Channel::k_momimaki_feeder, 0.0 );
     }
@@ -227,6 +250,9 @@ void AP_Momimaki::update()
         float spread_rate = _radius / _spreader_max_radius;
         // 籾拡散量　PWM出力
         pwm_output( SRV_Channel::k_momimaki_spreader, spread_rate );
+
+      //  float tmpradius = _spreader_max_radius;
+ //       gcs().send_text(MAV_SEVERITY_NOTICE, "momimaki_spreader = %f(%f/%f)", spread_rate, _radius , tmpradius);
     }
     else
     {
