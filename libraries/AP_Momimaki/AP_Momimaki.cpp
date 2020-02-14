@@ -70,13 +70,21 @@ const AP_Param::GroupInfo AP_Momimaki::var_info[] = {
     AP_GROUPINFO("SRMAX",  5, AP_Momimaki, _spreader_max_radius, AP_MOMIMAKI_DEFAULT_SPR_RAD_MAX ),
 
 
-    // @Param: SRMAX
-    // @DisplayName: max radius of spreading
-    // @Description: max radius of spreading at full throttle
+    // @Param: DBG_SPD
+    // @DisplayName: virtual vehicle_speed for debug of Momimaki
+    // @Description: virtual vehicle_speed for debug of Momimaki
     // @User: Standard
-    // @Units: m
-    // @Range: 0.5 20
+    // @Units: m/s
+    // @Range: -1～20
     AP_GROUPINFO("DBG_SPD",  6, AP_Momimaki, _debug_vehicle_speed, -1 ),
+
+    // @Param: RT_CTRL
+    // @DisplayName: Route_Control( use in dronekit-python )
+    // @Description: Route_Control( use in dronekit-python )
+    // @User: Standard
+    // @Units: none
+    // @Range: 1,2,3...
+    AP_GROUPINFO("RT_CTRL",  7, AP_Momimaki, _route_ctrl, 0 ),
 
     AP_GROUPEND
 };

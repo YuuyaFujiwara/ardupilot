@@ -85,6 +85,9 @@ private:
 
     AP_Float        _debug_vehicle_speed;  // デバッグ用に機体速度を外部から与える。
 
+	AP_Float		_route_ctrl;		// ルート管理用パラメータ（dronekit-pythonにて使用)
+	
+
 
     void status_check( bool& feeder_sts, bool& spreader_sts);
 
