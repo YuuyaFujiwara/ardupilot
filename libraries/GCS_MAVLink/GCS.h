@@ -350,6 +350,9 @@ protected:
     void handle_mission_write_partial_list(const mavlink_message_t &msg);
     void handle_mission_item(const mavlink_message_t &msg);
 
+    void handle_distance_sensor(const mavlink_message_t &msg);
+    void handle_obstacle_distance(const mavlink_message_t &msg);
+
     void handle_common_param_message(const mavlink_message_t &msg);
     void handle_param_set(const mavlink_message_t &msg);
     void handle_param_request_list(const mavlink_message_t &msg);
@@ -437,8 +440,11 @@ protected:
     MAV_RESULT handle_command_do_set_mode(const mavlink_command_long_t &packet);
     MAV_RESULT handle_command_get_home_position(const mavlink_command_long_t &packet);
     MAV_RESULT handle_command_do_fence_enable(const mavlink_command_long_t &packet);
+    MAV_RESULT handle_command_debug_trap(const mavlink_command_long_t &packet);
 
     void handle_optical_flow(const mavlink_message_t &msg);
+
+    MAV_RESULT handle_fixed_mag_cal_yaw(const mavlink_command_long_t &packet);
 
     // vehicle-overridable message send function
     virtual bool try_send_message(enum ap_message id);
@@ -833,8 +839,8 @@ public:
 
     void send_text(MAV_SEVERITY severity, const char *fmt, ...) FMT_PRINTF(3, 4);
     void send_textv(MAV_SEVERITY severity, const char *fmt, va_list arg_list);
-    virtual void send_statustext(MAV_SEVERITY severity, uint8_t dest_bitmask, const char *text);
-    void service_statustext(void);
+    virtual void send_textv(MAV_SEVERITY severity, const char *fmt, va_list arg_list, uint8_t mask);
+
     virtual GCS_MAVLINK *chan(const uint8_t ofs) = 0;
     virtual const GCS_MAVLINK *chan(const uint8_t ofs) const = 0;
     // return the number of valid GCS objects
@@ -864,6 +870,7 @@ public:
         return 200;
     }
 
+    void init();
     void setup_console();
     void setup_uarts();
 
@@ -902,6 +909,8 @@ public:
 
 protected:
 
+    virtual uint8_t sysid_this_mav() const = 0;
+
     virtual GCS_MAVLINK *new_gcs_mavlink_backend(GCS_MAVLINK_Parameters &params,
                                                  AP_HAL::UARTDriver &uart) = 0;
 
@@ -925,6 +934,7 @@ private:
         uint8_t                 bitmask;
         mavlink_statustext_t    msg;
     };
+    char statustext_printf_buffer[256+1];
 
     virtual AP_GPS::GPS_Status min_status_for_gps_healthy() const {
         // NO_FIX simply excludes NO_GPS
@@ -933,6 +943,7 @@ private:
 
     void update_sensor_status_flags();
 
+    void service_statustext(void);
 #if HAL_MEM_CLASS <= HAL_MEM_CLASS_192 || CONFIG_HAL_BOARD == HAL_BOARD_SITL
     static const uint8_t _status_capacity = 5;
 #else
@@ -949,6 +960,9 @@ private:
     // true if we have already allocated protocol objects:
     bool initialised_missionitemprotocol_objects;
 
+    // true if update_send has ever been called:
+    bool update_send_has_been_called;
+
     // handle passthru between two UARTs
     struct {
         bool enabled;
@@ -964,6 +978,12 @@ private:
 
     // timer called to implement pass-thru
     void passthru_timer();
+
+    // this contains the index of the GCS_MAVLINK backend we will
+    // first call update_send on.  It is incremented each time
+    // GCS::update_send is called so we don't starve later links of
+    // time in which they are permitted to send messages.
+    uint8_t first_backend_to_send;
 };
 
 GCS &gcs();

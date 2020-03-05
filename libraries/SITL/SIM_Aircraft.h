@@ -84,6 +84,16 @@ public:
     // get frame rate of model in Hz
     float get_rate_hz(void) const { return rate_hz; }
 
+    // get number of motors for model
+    uint16_t get_num_motors() const {
+        return num_motors;
+    }
+
+    // get motor offset for model
+    virtual uint16_t get_motors_offset() const {
+        return 0;
+    }
+
     const Vector3f &get_gyro(void) const {
         return gyro;
     }
@@ -155,8 +165,8 @@ protected:
     float airspeed_pitot;                // m/s, apparent airspeed, as seen by fwd pitot tube
     float battery_voltage = -1.0f;
     float battery_current = 0.0f;
-    float rpm1 = 0;
-    float rpm2 = 0;
+    uint8_t num_motors = 1;
+    float rpm[12];
     uint8_t rcin_chan_count = 0;
     float rcin[8];
     float range = -1.0f;                 // rangefinder detection in m
@@ -193,6 +203,8 @@ protected:
 
     // allow for AHRS_ORIENTATION
     AP_Int8 *ahrs_orientation;
+    enum Rotation last_imu_rotation;
+    Matrix3f ahrs_rotation_inv;
 
     enum GroundBehaviour {
         GROUND_BEHAVIOR_NONE = 0,

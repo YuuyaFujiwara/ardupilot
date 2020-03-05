@@ -26,7 +26,7 @@
 
    APMrover alpha version tester: Franco Borasio, Daniel Chapelat...
 
-   Please contribute your ideas! See http://dev.ardupilot.org for details
+   Please contribute your ideas! See https://dev.ardupilot.org for details
 */
 
 #include "Rover.h"
@@ -89,7 +89,9 @@ const AP_Scheduler::Task Rover::scheduler_tasks[] = {
     SCHED_TASK_CLASS(ModeSmartRTL,        &rover.mode_smartrtl,    save_position,   3,  200),
     SCHED_TASK_CLASS(AP_Notify,           &rover.notify,           update,         50,  300),
     SCHED_TASK(one_second_loop,         1,   1500),
+#if HAL_SPRAYER_ENABLED
     SCHED_TASK_CLASS(AC_Sprayer,          &rover.g2.sprayer,           update,      3,  90),
+#endif
     SCHED_TASK_CLASS(Compass,          &rover.compass,              cal_update, 50, 200),
     SCHED_TASK(compass_save,           0.1,   200),
     SCHED_TASK(accel_cal_update,       10,    200),
@@ -113,6 +115,16 @@ const AP_Scheduler::Task Rover::scheduler_tasks[] = {
 #endif
 };
 
+
+void Rover::get_scheduler_tasks(const AP_Scheduler::Task *&tasks,
+                                uint8_t &task_count,
+                                uint32_t &log_bit)
+{
+    tasks = &scheduler_tasks[0];
+    task_count = ARRAY_SIZE(scheduler_tasks);
+    log_bit = MASK_LOG_PM;
+}
+
 constexpr int8_t Rover::_failsafe_priorities[7];
 
 Rover::Rover(void) :
@@ -123,9 +135,19 @@ Rover::Rover(void) :
     channel_lateral(nullptr),
     logger{g.log_bitmask},
     modes(&g.mode1),
-    control_mode(&mode_initializing),
-    G_Dt(0.02f)
+    control_mode(&mode_initializing)
 {
+}
+
+// set target location (for use by scripting)
+bool Rover::set_target_location(const Location& target_loc)
+{
+    // exit if vehicle is not in Guided mode or Auto-Guided mode
+    if (!control_mode->in_guided_mode()) {
+        return false;
+    }
+
+    return control_mode->set_desired_location(target_loc);
 }
 
 #if STATS_ENABLED == ENABLED
@@ -139,28 +161,6 @@ void Rover::stats_update(void)
 }
 #endif
 
-/*
-  setup is called when the sketch starts
- */
-void Rover::setup()
-{
-    // load the default values of variables listed in var_info[]
-    AP_Param::setup_sketch_defaults();
-
-    init_ardupilot();
-
-    // initialise the main loop scheduler
-    scheduler.init(&scheduler_tasks[0], ARRAY_SIZE(scheduler_tasks), MASK_LOG_PM);
-}
-
-/*
-  loop() is called rapidly while the sketch is running
- */
-void Rover::loop()
-{
-    scheduler.loop();
-    G_Dt = scheduler.get_last_loop_time_s();
-}
 
 // update AHRS system
 void Rover::ahrs_update()
@@ -216,7 +216,7 @@ void Rover::gcs_failsafe_check(void)
     }
 
     // check for updates from GCS within 2 seconds
-    failsafe_trigger(FAILSAFE_EVENT_GCS, failsafe.last_heartbeat_ms != 0 && (millis() - failsafe.last_heartbeat_ms) > 2000);
+    failsafe_trigger(FAILSAFE_EVENT_GCS, "GCS", failsafe.last_heartbeat_ms != 0 && (millis() - failsafe.last_heartbeat_ms) > 2000);
 }
 
 /*
@@ -292,7 +292,7 @@ void Rover::one_second_loop(void)
 
     // need to set "likely flying" when armed to allow for compass
     // learning to run
-    ahrs.set_likely_flying(hal.util->get_soft_armed());
+    set_likely_flying(hal.util->get_soft_armed());
 
     // send latest param values to wp_nav
     g2.wp_nav.set_turn_params(g.turn_max_g, g2.turn_radius, g2.motors.have_skid_steering());
@@ -350,5 +350,6 @@ void Rover::publish_osd_info()
 #endif
 
 Rover rover;
+AP_Vehicle& vehicle = rover;
 
 AP_HAL_MAIN_CALLBACKS(&rover);

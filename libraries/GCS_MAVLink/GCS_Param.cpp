@@ -37,6 +37,12 @@ GCS_MAVLINK::queued_param_send()
     // send parameter async replies
     uint8_t async_replies_sent_count = send_parameter_async_replies();
 
+    // now send the streaming parameters (from PARAM_REQUEST_LIST)
+    if (_queued_parameter == nullptr) {
+        // .... or not....
+        return;
+    }
+
     const uint32_t tnow = AP_HAL::millis();
     const uint32_t tstart = AP_HAL::micros();
 
@@ -63,10 +69,6 @@ GCS_MAVLINK::queued_param_send()
         return;
     }
     count -= async_replies_sent_count;
-
-    if (_queued_parameter == nullptr) {
-        return;
-    }
 
     while (count && _queued_parameter != nullptr) {
         char param_name[AP_MAX_NAME_SIZE];
@@ -268,7 +270,7 @@ void GCS_MAVLINK::handle_param_set(const mavlink_message_t &msg)
     // find existing param so we can get the old value
     uint16_t parameter_flags = 0;
     vp = AP_Param::find(key, &var_type, &parameter_flags);
-    if (vp == nullptr) {
+    if (vp == nullptr || isnan(packet.param_value) || isinf(packet.param_value)) {
         return;
     }
 

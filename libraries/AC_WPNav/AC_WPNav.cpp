@@ -95,6 +95,23 @@ AC_WPNav::AC_WPNav(const AP_InertialNav& inav, const AP_AHRS_View& ahrs, AC_PosC
     _wp_radius_cm = MAX(_wp_radius_cm, WPNAV_WP_RADIUS_MIN);
 }
 
+// get expected source of terrain data if alt-above-terrain command is executed (used by Copter's ModeRTL)
+AC_WPNav::TerrainSource AC_WPNav::get_terrain_source() const
+{
+    // use range finder if connected
+    if (_rangefinder_available && _rangefinder_use) {
+        return AC_WPNav::TerrainSource::TERRAIN_FROM_RANGEFINDER;
+    }
+#if AP_TERRAIN_AVAILABLE
+    if ((_terrain != nullptr) && _terrain->enabled()) {
+        return AC_WPNav::TerrainSource::TERRAIN_FROM_TERRAINDATABASE;
+    } else {
+        return AC_WPNav::TerrainSource::TERRAIN_UNAVAILABLE;
+    }
+#else
+    return AC_WPNav::TerrainSource::TERRAIN_UNAVAILABLE;
+#endif
+}
 
 ///
 /// waypoint navigation
@@ -118,6 +135,9 @@ void AC_WPNav::wp_and_spline_init()
     // initialise feed forward velocity to zero
     _pos_control.set_desired_velocity_xy(0.0f, 0.0f);
 
+    // initialize the desired wp speed if not already done
+    _wp_desired_speed_xy_cms = _wp_speed_cms;
+
     // initialise position controller speed and acceleration
     _pos_control.set_max_speed_xy(_wp_speed_cms);
     _pos_control.set_max_accel_xy(_wp_accel_cmss);
@@ -133,11 +153,9 @@ void AC_WPNav::wp_and_spline_init()
 /// set_speed_xy - allows main code to pass target horizontal velocity for wp navigation
 void AC_WPNav::set_speed_xy(float speed_cms)
 {
-    // range check new target speed and update position controller
+    // range check target speed
     if (speed_cms >= WPNAV_WP_SPEED_MIN) {
-        _pos_control.set_max_speed_xy(speed_cms);
-        // flag that wp leash must be recalculated
-        _flags.recalc_wp_leash = true;
+        _wp_desired_speed_xy_cms = speed_cms;
     }
 }
 
@@ -494,6 +512,9 @@ bool AC_WPNav::update_wpnav()
     _pos_control.set_max_accel_xy(_wp_accel_cmss);
     _pos_control.set_max_accel_z(_wp_accel_z_cmss);
 
+    // wp_speed_update - update _pos_control.set_max_speed_xy if speed change has been requested
+    wp_speed_update(dt);
+
     // advance the target if necessary
     if (!advance_wp_target_along_track(dt)) {
         // To-Do: handle inability to advance along track (probably because of missing terrain data)
@@ -783,6 +804,9 @@ bool AC_WPNav::update_spline()
     // get dt from pos controller
     float dt = _pos_control.get_dt();
 
+    // wp_speed_update - update _pos_control.set_max_speed_xy if speed change has been requested
+    wp_speed_update(dt);
+
     // advance the target if necessary
     if (!advance_spline_target_along_track(dt)) {
         // To-Do: handle failure to advance along track (due to missing terrain data)
@@ -941,23 +965,28 @@ void AC_WPNav::calc_spline_pos_vel(float spline_time, Vector3f& position, Vector
 // get terrain's altitude (in cm above the ekf origin) at the current position (+ve means terrain below vehicle is above ekf origin's altitude)
 bool AC_WPNav::get_terrain_offset(float& offset_cm)
 {
-    // use range finder if connected
-    if (_rangefinder_available && _rangefinder_use) {
+    // calculate offset based on source (rangefinder or terrain database)
+    switch (get_terrain_source()) {
+    case AC_WPNav::TerrainSource::TERRAIN_UNAVAILABLE:
+        return false;
+    case AC_WPNav::TerrainSource::TERRAIN_FROM_RANGEFINDER:
         if (_rangefinder_healthy) {
             offset_cm = _inav.get_altitude() - _rangefinder_alt_cm;
             return true;
         }
         return false;
+    case AC_WPNav::TerrainSource::TERRAIN_FROM_TERRAINDATABASE:
+#if AP_TERRAIN_AVAILABLE
+        float terr_alt = 0.0f;
+        if (_terrain != nullptr && _terrain->height_above_terrain(terr_alt, true)) {
+            offset_cm = _inav.get_altitude() - (terr_alt * 100.0f);
+            return true;
+        }
+#endif
+        return false;
     }
 
-#if AP_TERRAIN_AVAILABLE
-    // use terrain database
-    float terr_alt = 0.0f;
-    if (_terrain != nullptr && _terrain->height_above_terrain(terr_alt, true)) {
-        offset_cm = _inav.get_altitude() - (terr_alt * 100.0f);
-        return true;
-    }
-#endif
+    // we should never get here but just in case
     return false;
 }
 
@@ -1030,4 +1059,34 @@ float AC_WPNav::get_slow_down_speed(float dist_from_dest_cm, float accel_cmss)
     } else {
         return target_speed;
     }
+}
+
+/// wp_speed_update - calculates how to handle speed change requests
+void AC_WPNav::wp_speed_update(float dt)
+{
+    // return if speed has not changed
+    float curr_max_speed_xy_cms = _pos_control.get_max_speed_xy();
+    if (is_equal(_wp_desired_speed_xy_cms, curr_max_speed_xy_cms)) {
+        return;
+    }
+    // calculate speed change
+    if (_wp_desired_speed_xy_cms > curr_max_speed_xy_cms) {
+        // speed up is requested so increase speed within limit set by WPNAV_ACCEL
+        curr_max_speed_xy_cms += _wp_accel_cmss * dt;
+        if (curr_max_speed_xy_cms > _wp_desired_speed_xy_cms) {
+            curr_max_speed_xy_cms = _wp_desired_speed_xy_cms;
+        }
+    } else if (_wp_desired_speed_xy_cms < curr_max_speed_xy_cms) {
+        // slow down is requested so reduce speed within limit set by WPNAV_ACCEL
+        curr_max_speed_xy_cms -= _wp_accel_cmss * dt;
+        if (curr_max_speed_xy_cms < _wp_desired_speed_xy_cms) {
+            curr_max_speed_xy_cms = _wp_desired_speed_xy_cms;
+        }
+    }
+
+    // update position controller speed
+    _pos_control.set_max_speed_xy(curr_max_speed_xy_cms);
+    
+    // flag that wp leash must be recalculated
+    _flags.recalc_wp_leash = true;
 }

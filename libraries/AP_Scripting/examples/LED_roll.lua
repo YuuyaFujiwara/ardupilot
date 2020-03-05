@@ -15,14 +15,14 @@ local num_leds = 30
 local chan = SRV_Channels:find_channel(94)
 
 if not chan then
-    gcs:send_text(6, string.format("LEDs: channel not set"))
+    gcs:send_text(6, "LEDs: channel not set")
     return
 end
 
 -- find_channel returns 0 to 15, convert to 1 to 16
 chan = chan + 1
 
-gcs:send_text(6, string.format("LEDs: chan=" .. tostring(chan)))
+gcs:send_text(6, "LEDs: chan=" .. tostring(chan))
 
 -- initialisation code
 serialLED:set_num_LEDs(chan,  num_leds)
@@ -63,7 +63,7 @@ function set_Rainbow(chan, led, v)
   r = math.floor(rainbow[row][1] + p * (rainbow[row+1][1] - rainbow[row][1]))
   g = math.floor(rainbow[row][2] + p * (rainbow[row+1][2] - rainbow[row][2]))
   b = math.floor(rainbow[row][3] + p * (rainbow[row+1][3] - rainbow[row][3]))
-  serialLED:set_RGB(chan, uint32_t(1 << led), r, g, b)
+  serialLED:set_RGB(chan, led, r, g, b)
 end
 
 --[[

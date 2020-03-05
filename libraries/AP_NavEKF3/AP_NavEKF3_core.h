@@ -327,7 +327,7 @@ public:
     void getFilterStatus(nav_filter_status &status) const;
 
     // send an EKF_STATUS_REPORT message to GCS
-    void send_status_report(mavlink_channel_t chan);
+    void send_status_report(mavlink_channel_t chan) const;
 
     // provides the height limit to be observed by the control loops
     // returns false if no height limiting is required
@@ -843,7 +843,10 @@ private:
 
     // Update the state index limit based on which states are active
     void updateStateIndexLim(void);
-    
+
+    // correct GPS data for antenna position
+    void CorrectGPSForAntennaOffset(gps_elements &gps_data);
+
     // Variables
     bool statesInitialised;         // boolean true when filter states have been initialised
     bool velHealth;                 // boolean true if velocity measurements have passed innovation consistency check

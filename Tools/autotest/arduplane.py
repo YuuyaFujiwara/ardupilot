@@ -695,7 +695,7 @@ class AutoTestPlane(AutoTest):
             flaps_ch = 5
             servo_ch = 5
             self.set_parameter("SERVO%u_FUNCTION" % servo_ch, 3) # flapsauto
-            self.set_parameter("FLAP_IN_CHANNEL", flaps_ch)
+            self.set_parameter("RC%u_OPTION" % flaps_ch, 208) # Flaps RCx_OPTION
             self.set_parameter("LAND_FLAP_PERCNT", 50)
             self.set_parameter("LOG_DISARMED", 1)
             flaps_ch_min = 1000
@@ -1318,6 +1318,9 @@ class AutoTestPlane(AutoTest):
                                 timeout=5)
         self.mav.motors_disarmed_wait()
 
+    def sample_enable_parameter(self):
+        return "Q_ENABLE"
+
     def test_rangefinder(self):
         ex = None
         self.context_push()
@@ -1569,6 +1572,62 @@ class AutoTestPlane(AutoTest):
 
         self.fly_home_land_and_disarm()
 
+    def LOITER(self):
+        self.takeoff(alt=200)
+        self.set_rc(3, 1500)
+        self.change_mode("LOITER")
+        self.progress("Doing a bit of loitering to start with")
+        tstart = self.get_sim_time()
+        while True:
+            now = self.get_sim_time_cached()
+            if now - tstart > 60:
+                break
+            m = self.mav.recv_match(type='VFR_HUD', blocking=True, timeout=5)
+            if m is None:
+                raise NotAchievedException("Did not get VFR_HUD")
+            new_throttle = m.throttle
+            alt = m.alt
+            m = self.mav.recv_match(type='ATTITUDE', blocking=True, timeout=5)
+            if m is None:
+                raise NotAchievedException("Did not get ATTITUDE")
+            pitch = math.degrees(m.pitch)
+            self.progress("Pitch:%f throttle:%u alt:%f" % (pitch, new_throttle, alt))
+        m = self.mav.recv_match(type='VFR_HUD', blocking=True, timeout=5)
+        if m is None:
+            raise NotAchievedException("Did not get VFR_HUD")
+        initial_throttle = m.throttle
+        initial_alt = m.alt
+        self.progress("Initial throttle: %u" % initial_throttle)
+        # pitch down, ensure throttle decreases:
+        rc2_max = self.get_parameter("RC2_MAX")
+        self.set_rc(2, rc2_max)
+        tstart = self.get_sim_time()
+        while True:
+            now = self.get_sim_time_cached()
+            '''stick-mixing is pushing the aircraft down.  It doesn't want to go
+            down (the target loiter altitude hasn't changed), so it
+            tries to add energy by increasing the throttle.
+            '''
+            if now - tstart > 60:
+                raise NotAchievedException("Did not see increase in throttle")
+            m = self.mav.recv_match(type='VFR_HUD', blocking=True, timeout=5)
+            if m is None:
+                raise NotAchievedException("Did not get VFR_HUD")
+            new_throttle = m.throttle
+            alt = m.alt
+            m = self.mav.recv_match(type='ATTITUDE', blocking=True, timeout=5)
+            if m is None:
+                raise NotAchievedException("Did not get ATTITUDE")
+            pitch = math.degrees(m.pitch)
+            self.progress("Pitch:%f throttle:%u alt:%f" % (pitch, new_throttle, alt))
+            if new_throttle - initial_throttle > 20:
+                self.progress("Throttle delta achieved")
+                break
+        self.progress("Centering elevator and ensuring we get back to loiter altitude")
+        self.set_rc(2, 1500)
+        self.wait_altitude(initial_alt-1, initial_alt+1)
+        self.fly_home_land_and_disarm()
+
     def tests(self):
         '''return list of all tests'''
         ret = super(AutoTestPlane, self).tests()
@@ -1638,9 +1697,33 @@ class AutoTestPlane(AutoTest):
              "Test ADSB",
              self.test_adsb),
 
+            ("Button",
+             "Test Buttons",
+             self.test_button),
+
+            ("FRSkySPort",
+             "Test FrSky SPort mode",
+             self.test_frsky_sport),
+
+            ("FRSkyPassThrough",
+             "Test FrSky PassThrough serial output",
+             self.test_frsky_passthrough),
+
+            ("FRSkyD",
+             "Test FrSkyD serial output",
+             self.test_frsky_d),
+
+            ("LTM",
+             "Test LTM serial output",
+             self.test_ltm),
+
             ("AdvancedFailsafe",
              "Test Advanced Failsafe",
              self.test_advanced_failsafe),
+
+            ("LOITER",
+             "Test Loiter mode",
+             self.LOITER),
 
             ("DeepStall",
              "Test DeepStall Landing",
