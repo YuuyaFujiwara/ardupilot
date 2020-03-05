@@ -13,6 +13,7 @@
 #include <SRV_Channel/SRV_Channel.h>
 #include <AP_Logger/AP_Logger.h>
 #include <AP_GPS/AP_GPS.h>
+//#include <mavlink_msg_led_control.h>
 
 // ------------------------------
 #define CAM_DEBUG DISABLED
@@ -229,6 +230,11 @@ void AP_Momimaki::update()
     {
         forward_speed = _debug_vehicle_speed;
 
+
+        // LED_OVERRIDE実験
+        // _debug_vehicle_speedにてLEDパターン変えてみる
+        // for test of LED override
+        led_override_debug( _debug_vehicle_speed );
     }
 #endif
     
@@ -334,6 +340,41 @@ void AP_Momimaki::pwm_output( SRV_Channel::Aux_servo_function_t function, float 
     }
 
 }
+
+// for test of LED override
+void AP_Momimaki::led_override_debug( float led_status )
+{
+    mavlink_led_control_t pack;
+    pack.target_system      = 1;    /*<  System ID.*/
+    pack.target_component   = 1;    /*<  Component ID.*/
+    pack.instance           = 255;  /*<  Instance (LED instance to control or 255 for all LEDs).*/
+    pack.pattern            = 0;    /*<  Pattern (see LED_PATTERN_ENUM).*/
+    pack.custom_len         = 4;    /*<  Custom Byte Length.*/
+    pack.custom_bytes[0]    = 0;    // _led_override.r;
+    pack.custom_bytes[1]    = 0;    // _led_override.g;
+    pack.custom_bytes[2]    = 0;    // _led_override.b;
+    pack.custom_bytes[3]    = 0;    // _led_override.rate_hz;
+
+
+    // LEDパターン作成
+    uint8_t ledsts = (uint8_t)led_status;
+    pack.custom_bytes[0] = ( ledsts & 0x01 ) ? 0 : 255; // _led_override.r;
+    pack.custom_bytes[1] = ( ledsts & 0x02 ) ? 0 : 255; // _led_override.g;
+    pack.custom_bytes[2] = ( ledsts & 0x04 ) ? 0 : 255; // _led_override.b;
+
+    // MAVLINKメッセージ作成
+    mavlink_message_t msg;
+    //static inline uint16_t mavlink_msg_led_control_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_led_control_t* led_control)
+    mavlink_msg_led_control_encode( 1, 1, &msg, &pack );
+
+    // 設定
+    AP_Notify::handle_led_control(msg);
+
+
+}
+
+
+
 
 
 // singleton instance
