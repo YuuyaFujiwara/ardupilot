@@ -41,10 +41,13 @@ bool RGBLed::init()
 // set_rgb - set color as a combination of red, green and blue values
 void RGBLed::_set_rgb(uint8_t red, uint8_t green, uint8_t blue)
 {
+    gcs().send_text(MAV_SEVERITY_NOTICE, "RGBLed::_set_rgb(); was called." ); //QL44
+
     if (red != _red_curr ||
         green != _green_curr ||
         blue != _blue_curr) {
         // call the hardware update routine
+        gcs().send_text(MAV_SEVERITY_NOTICE, "hw_set_rgb(); was called." ); //QL44
         if (hw_set_rgb(red, green, blue)) {
             _red_curr = red;
             _green_curr = green;
