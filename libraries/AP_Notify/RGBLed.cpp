@@ -15,6 +15,7 @@
 
 */
 
+#include <GCS_MAVLink/GCS.h>//QL44
 
 #include <AP_HAL/AP_HAL.h>
 #include <AP_GPS/AP_GPS.h>
@@ -190,6 +191,9 @@ uint32_t RGBLed::get_colour_sequence_traffic_light(void) const
 // at 50Hz
 void RGBLed::update()
 {
+    gcs().send_text(MAV_SEVERITY_NOTICE, "RGBLed::update(); was called." ); //QL44
+
+
     uint32_t current_colour_sequence = 0;
 
     switch (rgb_source()) {
