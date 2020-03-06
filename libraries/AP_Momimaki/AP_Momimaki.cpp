@@ -343,11 +343,31 @@ void AP_Momimaki::pwm_output( SRV_Channel::Aux_servo_function_t function, float 
 // for test of LED drive
 void AP_Momimaki::led_drive_debug( float led_status )
 {
+
+
+
+#if false
     // LEDパターン作成
     uint8_t ledsts = (uint8_t)led_status;
     pwm_output( SRV_Channel::k_momimaki_led_b, ( ledsts & 0x01 ) ? 0.0 : 1.0 );
     pwm_output( SRV_Channel::k_momimaki_led_r, ( ledsts & 0x02 ) ? 0.0 : 1.0 );
     pwm_output( SRV_Channel::k_momimaki_led_g, ( ledsts & 0x04 ) ? 0.0 : 1.0 );
+#else
+    pwm_output( SRV_Channel::k_momimaki_led_b, 1.0 );
+    pwm_output( SRV_Channel::k_momimaki_led_r, 1.0 );
+    pwm_output( SRV_Channel::k_momimaki_led_g, 1.0 );
+#endif
+
+
+    // for debug
+    static float tmp;
+    if( tmp != led_status )
+    {
+        gcs().send_text(MAV_SEVERITY_NOTICE, "led_drive_debug() led_status changed to %f", led_status );
+        tmp = led_status;
+    }
+
+
 }
 
 
