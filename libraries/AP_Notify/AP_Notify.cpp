@@ -213,6 +213,7 @@ void AP_Notify::add_backends(void)
                 break;
             case Notify_LED_Board:
                 // select the most appropriate built in LED driver type
+#if false
 #if CONFIG_HAL_BOARD == HAL_BOARD_LINUX
   #if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_NAVIO2
                 ADD_BACKEND(new RCOutputRGBLed(11, 12, 13));//QL44
@@ -240,6 +241,11 @@ void AP_Notify::add_backends(void)
   #endif
 #elif (defined(HAL_GPIO_A_LED_PIN) && defined(HAL_GPIO_B_LED_PIN))
                 ADD_BACKEND(new AP_BoardLED2());
+#endif
+#else
+                //QL44 強制的に設定(NAVIO2+RCOutputRGBLed）
+                ADD_BACKEND(new RCOutputRGBLed(11, 12, 13));//QL44
+                ADD_BACKEND(new Led_Sysfs("rgb_led0", "rgb_led2", "rgb_led1"));
 #endif
                 break;
             case Notify_LED_ToshibaLED_I2C_Internal:
@@ -334,7 +340,7 @@ void AP_Notify::init(void)
 // main update function, called at 50Hz
 void AP_Notify::update(void)
 {
-    gcs().send_text(MAV_SEVERITY_NOTICE, "AP_Notify::update(); was called." );
+    gcs().send_text(MAV_SEVERITY_NOTICE, "AP_Notify::update(); was called." ); //QL44
 
 
     for (uint8_t i = 0; i < _num_devices; i++) {
