@@ -340,7 +340,7 @@ void AP_Notify::init(void)
 // main update function, called at 50Hz
 void AP_Notify::update(void)
 {
-    gcs().send_text(MAV_SEVERITY_NOTICE, "AP_Notify::update(); was called." ); //QL44
+//    gcs().send_text(MAV_SEVERITY_NOTICE, "AP_Notify::update(); was called." ); //QL44
 
 
     for (uint8_t i = 0; i < _num_devices; i++) {

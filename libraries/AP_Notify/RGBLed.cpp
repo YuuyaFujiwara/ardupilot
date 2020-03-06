@@ -41,7 +41,7 @@ bool RGBLed::init()
 // set_rgb - set color as a combination of red, green and blue values
 void RGBLed::_set_rgb(uint8_t red, uint8_t green, uint8_t blue)
 {
-    gcs().send_text(MAV_SEVERITY_NOTICE, "RGBLed::_set_rgb(); was called." ); //QL44
+//    gcs().send_text(MAV_SEVERITY_NOTICE, "RGBLed::_set_rgb(); was called." ); //QL44
 
     if (red != _red_curr ||
         green != _green_curr ||
@@ -194,7 +194,7 @@ uint32_t RGBLed::get_colour_sequence_traffic_light(void) const
 // at 50Hz
 void RGBLed::update()
 {
-    gcs().send_text(MAV_SEVERITY_NOTICE, "RGBLed::update(); was called." ); //QL44
+//    gcs().send_text(MAV_SEVERITY_NOTICE, "RGBLed::update(); was called." ); //QL44
 
 
     uint32_t current_colour_sequence = 0;
