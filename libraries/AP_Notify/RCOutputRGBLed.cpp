@@ -67,7 +67,7 @@ uint16_t RCOutputRGBLedInverted::get_duty_cycle_for_color(const uint8_t color, c
 
 bool RCOutputRGBLed::hw_set_rgb(uint8_t red, uint8_t green, uint8_t blue)
 {
-    gcs().send_text(MAV_SEVERITY_NOTICE, "RCOutputRGBLed::hw_set_rgb(); was called." );//QL44
+    gcs().send_text(MAV_SEVERITY_NOTICE, "RCOutputRGBLed::hw_set_rgb(); was called..." );//QL44
 
 
     const uint16_t freq_motor = hal.rcout->get_freq(0);
