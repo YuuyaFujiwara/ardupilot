@@ -204,6 +204,9 @@ void AP_Momimaki::update()
     bool feeder_sts;
     bool spreader_sts;
     
+    gcs().send_text(MAV_SEVERITY_NOTICE, "update() was called." );
+
+
     // 籾播ききを動作させるか決める
     status_check( feeder_sts, spreader_sts );
 
