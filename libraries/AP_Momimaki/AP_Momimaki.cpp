@@ -204,7 +204,7 @@ void AP_Momimaki::update()
     bool feeder_sts;
     bool spreader_sts;
     
-    gcs().send_text(MAV_SEVERITY_NOTICE, "update() was called." );
+//   gcs().send_text(MAV_SEVERITY_NOTICE, "update() was called." );
 
 
     // 籾播ききを動作させるか決める
@@ -346,10 +346,7 @@ void AP_Momimaki::pwm_output( SRV_Channel::Aux_servo_function_t function, float 
 // for test of LED drive
 void AP_Momimaki::led_drive_debug( float led_status )
 {
-
-
-
-#if false
+#if true
     // LEDパターン作成
     uint8_t ledsts = (uint8_t)led_status;
     pwm_output( SRV_Channel::k_momimaki_led_b, ( ledsts & 0x01 ) ? 0.0 : 1.0 );
