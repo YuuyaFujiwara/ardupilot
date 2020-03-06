@@ -214,6 +214,7 @@ void AP_Notify::add_backends(void)
                 // select the most appropriate built in LED driver type
 #if CONFIG_HAL_BOARD == HAL_BOARD_LINUX
   #if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_NAVIO2
+                ADD_BACKEND(new RCOutputRGBLed(11, 12, 13));//QL44
                 ADD_BACKEND(new Led_Sysfs("rgb_led0", "rgb_led2", "rgb_led1"));
   #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_EDGE
                 ADD_BACKEND(new RCOutputRGBLedInverted(12, 13, 14));
@@ -341,6 +342,21 @@ void AP_Notify::update(void)
     //reset the events
     memset(&AP_Notify::events, 0, sizeof(AP_Notify::events));
 }
+
+// debug of QL44
+// main update function, called at 50Hz
+void AP_Notify::static_update(void)
+{
+    for (uint8_t i = 0; i < _num_devices; i++) {
+        if (_devices[i] != nullptr) {
+            _devices[i]->update();
+        }
+    }
+
+    //reset the events
+    //memset(&AP_Notify::events, 0, sizeof(AP_Notify::events));
+}
+
 
 // handle a LED_CONTROL message
 void AP_Notify::handle_led_control(const mavlink_message_t &msg)

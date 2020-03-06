@@ -368,6 +368,11 @@ void AP_Momimaki::led_drive_debug( float led_status )
     }
 
 
+    AP_Notify::static_update();
+    gcs().send_text(MAV_SEVERITY_NOTICE, "AP_Notify::static_update();" );
+
+
+
 }
 
 

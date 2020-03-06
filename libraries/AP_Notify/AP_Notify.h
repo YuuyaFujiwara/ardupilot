@@ -135,6 +135,9 @@ public:
     /// update - allow updates of leds that cannot be updated during a timed interrupt
     void update(void);
 
+    // for QL44 debug
+    static static_update(void);
+
     // handle a LED_CONTROL message
     static void handle_led_control(const mavlink_message_t &msg);
 
