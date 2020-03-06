@@ -64,9 +64,6 @@ public:
         _is_in_auto_mode = enable;
     }
 
-    // for test of LED override
-    void led_override_debug( float led_statrus );
-
 
 private:
 
