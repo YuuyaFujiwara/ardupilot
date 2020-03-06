@@ -92,7 +92,7 @@ bool RCOutputRGBLed::hw_set_rgb(uint8_t red, uint8_t green, uint8_t blue)
 
     usec_duty = get_duty_cycle_for_color(green, usec_period);
     SRV_Channels::set_output_pwm_chan(_green_channel, usec_duty);
-    gcs().send_text(MAV_SEVERITY_NOTICE, "SRV_Channels::set_output_pwm_chan( %d, %d ); was called. green=%d", static_cast<int>( _green_channel ),static_cast<int>( usec_duty ),static_cast<int>( greed ) );//QL44
+    gcs().send_text(MAV_SEVERITY_NOTICE, "SRV_Channels::set_output_pwm_chan( %d, %d ); was called. green=%d", static_cast<int>( _green_channel ),static_cast<int>( usec_duty ),static_cast<int>( green ) );//QL44
 
     usec_duty = get_duty_cycle_for_color(blue, usec_period);
     SRV_Channels::set_output_pwm_chan(_blue_channel, usec_duty);
