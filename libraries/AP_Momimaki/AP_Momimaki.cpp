@@ -229,6 +229,10 @@ void AP_Momimaki::update()
     {
         forward_speed = _debug_vehicle_speed;
 
+        // LED_実験
+        // _debug_vehicle_speedにてLEDパターン変えてみる
+        // for test of LED override
+        led_drive_debug( _debug_vehicle_speed );
     }
 #endif
     
@@ -333,6 +337,17 @@ void AP_Momimaki::pwm_output( SRV_Channel::Aux_servo_function_t function, float 
         }
     }
 
+}
+
+
+// for test of LED drive
+void AP_Momimaki::led_drive_debug( float led_status )
+{
+    // LEDパターン作成
+    uint8_t ledsts = (uint8_t)led_status;
+    pwm_output( SRV_Channel::k_momimaki_led_b, ( ledsts & 0x01 ) ? 0.0 : 1.0 );
+    pwm_output( SRV_Channel::k_momimaki_led_r, ( ledsts & 0x02 ) ? 0.0 : 1.0 );
+    pwm_output( SRV_Channel::k_momimaki_led_g, ( ledsts & 0x04 ) ? 0.0 : 1.0 );
 }
 
 

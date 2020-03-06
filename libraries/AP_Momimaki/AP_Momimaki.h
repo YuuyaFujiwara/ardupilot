@@ -96,7 +96,9 @@ private:
     float Calc_Momiokuri_SpreadRate(void);
 
     void pwm_output( SRV_Channel::Aux_servo_function_t function, float value );
-    
+
+    // for test of LED drive
+    void led_drive_debug( float led_statrus );
     
 //    Mode::Number    _mode_number;
     bool            _is_in_auto_mode;   // true if in AUTO mode
