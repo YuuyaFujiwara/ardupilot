@@ -12,6 +12,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <GCS_MAVLink/GCS.h>//QL44
 
 #include "AP_Notify.h"
 
@@ -333,6 +334,9 @@ void AP_Notify::init(void)
 // main update function, called at 50Hz
 void AP_Notify::update(void)
 {
+    gcs().send_text(MAV_SEVERITY_NOTICE, "AP_Notify::update(); was called." );
+
+
     for (uint8_t i = 0; i < _num_devices; i++) {
         if (_devices[i] != nullptr) {
             _devices[i]->update();
