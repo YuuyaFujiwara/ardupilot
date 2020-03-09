@@ -145,9 +145,6 @@ public:
         k_scripting14           = 107,
         k_scripting15           = 108,
         k_scripting16           = 109,
-        k_momimaki_led_r        = 115,            ///< for QL44
-        k_momimaki_led_g        = 116,            ///< for QL44
-        k_momimaki_led_b        = 117,            ///< for QL44
         k_LED_neopixel1         = 120,
         k_LED_neopixel2         = 121,
         k_LED_neopixel3         = 122,

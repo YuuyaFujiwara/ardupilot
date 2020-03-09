@@ -14,8 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <GCS_MAVLink/GCS.h>//QL44
-
 #include "RCOutputRGBLed.h"
 
 #include <AP_Math/AP_Math.h>
@@ -67,9 +65,6 @@ uint16_t RCOutputRGBLedInverted::get_duty_cycle_for_color(const uint8_t color, c
 
 bool RCOutputRGBLed::hw_set_rgb(uint8_t red, uint8_t green, uint8_t blue)
 {
-    gcs().send_text(MAV_SEVERITY_NOTICE, "RCOutputRGBLed::hw_set_rgb(); was called..." );//QL44
-
-
     const uint16_t freq_motor = hal.rcout->get_freq(0);
     const uint16_t freq = hal.rcout->get_freq(_red_channel);
     const uint16_t usec_period = hz_to_usec(freq);
@@ -87,16 +82,11 @@ bool RCOutputRGBLed::hw_set_rgb(uint8_t red, uint8_t green, uint8_t blue)
     uint16_t usec_duty = get_duty_cycle_for_color(red, usec_period);
     SRV_Channels::set_output_pwm_chan(_red_channel, usec_duty);
 
-    gcs().send_text(MAV_SEVERITY_NOTICE, "SRV_Channels::set_output_pwm_chan( %d, %d ); was called. red=%d", static_cast<int>( _red_channel ),static_cast<int>( usec_duty ) ,static_cast<int>( red ) );//QL44
-
-
     usec_duty = get_duty_cycle_for_color(green, usec_period);
     SRV_Channels::set_output_pwm_chan(_green_channel, usec_duty);
-    gcs().send_text(MAV_SEVERITY_NOTICE, "SRV_Channels::set_output_pwm_chan( %d, %d ); was called. green=%d", static_cast<int>( _green_channel ),static_cast<int>( usec_duty ),static_cast<int>( green ) );//QL44
 
     usec_duty = get_duty_cycle_for_color(blue, usec_period);
     SRV_Channels::set_output_pwm_chan(_blue_channel, usec_duty);
-    gcs().send_text(MAV_SEVERITY_NOTICE, "SRV_Channels::set_output_pwm_chan( %d, %d ); was called. blue=%d", static_cast<int>( _blue_channel ),static_cast<int>( usec_duty ),static_cast<int>( blue ) );//QL44
 
     return true;
 }
