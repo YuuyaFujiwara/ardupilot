@@ -346,6 +346,7 @@ void AP_Momimaki::pwm_output( SRV_Channel::Aux_servo_function_t function, float 
 // for test of LED drive
 void AP_Momimaki::led_drive_debug( float led_status )
 {
+#if false
 #if true
     // LEDパターン作成
     uint8_t ledsts = (uint8_t)led_status;
@@ -367,7 +368,7 @@ void AP_Momimaki::led_drive_debug( float led_status )
         tmp = led_status;
     }
 
-
+#endif
 }
 
 
