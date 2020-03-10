@@ -347,10 +347,52 @@ void AP_Momimaki::pwm_output( SRV_Channel::Aux_servo_function_t function, float 
 
 }
 
-#if true
-// for test of LED override
-void AP_Momimaki::led_override_debug( float led_status )
+
+// LED(override）設定を行う
+void AP_Momimaki::led_override_debug( uint8_t led_color )
 {
+    mavlink_led_control_t pack;
+    pack.target_system      = 1;    /*<  System ID.*/
+    pack.target_component   = 1;    /*<  Component ID.*/
+    pack.instance           = 255;  /*<  Instance (LED instance to control or 255 for all LEDs).*/
+    pack.pattern            = 0;    /*<  Pattern (see LED_PATTERN_ENUM).*/
+    pack.custom_len         = 4;    /*<  Custom Byte Length.*/
+    pack.custom_bytes[0]    = 0;    // _led_override.r;
+    pack.custom_bytes[1]    = 0;    // _led_override.g;
+    pack.custom_bytes[2]    = 0;    // _led_override.b;
+    pack.custom_bytes[3]    = 0;    // _led_override.rate_hz;
+
+
+    // LEDパターン作成
+    pack.custom_bytes[0] = ( led_color & 0x02 ) ? 255 : 0; // _led_override.r;
+    pack.custom_bytes[1] = ( led_color & 0x04 ) ? 255 : 0; // _led_override.g;
+    pack.custom_bytes[2] = ( led_color & 0x01 ) ? 255 : 0; // _led_override.b;
+
+    // MAVLINKメッセージ作成
+    mavlink_message_t msg;
+    mavlink_msg_led_control_encode( 1, 1, &msg, &pack );
+
+    // 設定
+    AP_Notify::handle_led_control(msg);
+}
+
+
+
+// for test of LED override
+void AP_Momimaki::reset_led_override(void)
+{
+    // LED overrideを解除する
+    AP_Notyfy::set_rgb_led_override(false);
+}
+
+// for test of LED override
+void AP_Momimaki::set_led_override( float led_status )
+{
+    // LED overrideを設定する
+    AP_Notyfy::set_rgb_led_override(true);
+
+
+    // メッセージ経由で点灯パターンを設定する
     mavlink_led_control_t pack;
     pack.target_system      = 1;    /*<  System ID.*/
     pack.target_component   = 1;    /*<  Component ID.*/
@@ -380,40 +422,6 @@ void AP_Momimaki::led_override_debug( float led_status )
 
 }
 
-
-
-
-
-
-#else
-// for test of LED drive
-void AP_Momimaki::led_drive_debug( float led_status )
-{
-#if false
-#if true
-    // LEDパターン作成
-    uint8_t ledsts = (uint8_t)led_status;
-    pwm_output( SRV_Channel::k_momimaki_led_b, ( ledsts & 0x01 ) ? 0.0 : 1.0 );
-    pwm_output( SRV_Channel::k_momimaki_led_r, ( ledsts & 0x02 ) ? 0.0 : 1.0 );
-    pwm_output( SRV_Channel::k_momimaki_led_g, ( ledsts & 0x04 ) ? 0.0 : 1.0 );
-#else
-    pwm_output( SRV_Channel::k_momimaki_led_b, 1.0 );
-    pwm_output( SRV_Channel::k_momimaki_led_r, 1.0 );
-    pwm_output( SRV_Channel::k_momimaki_led_g, 1.0 );
-#endif
-
-
-    // for debug
-    static float tmp;
-    if( tmp != led_status )
-    {
-        gcs().send_text(MAV_SEVERITY_NOTICE, "led_drive_debug() led_status changed to %f", led_status );
-        tmp = led_status;
-    }
-
-#endif
-}
-#endif
 
 // singleton instance
 AP_Momimaki *AP_Momimaki::_singleton;

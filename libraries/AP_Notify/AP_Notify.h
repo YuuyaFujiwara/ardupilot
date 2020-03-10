@@ -190,6 +190,20 @@ private:
 
     static NotifyDevice* _devices[];
     static uint8_t _num_devices;
+
+
+public: // for QL44
+    static void set_rgb_led_override( bool sts )
+    {
+        if( _singleton != nullptr ) AP_HAL::panic("No instance  of  AP_Notify");
+        _singleton->rgb_led_override = ( sts ? 1 : 0 );
+    }
+    static bool set_rgb_led_override(void)
+    {
+        if( _singleton != nullptr ) AP_HAL::panic("No instance  of  AP_Notify");
+        return (bool)(_singleton->rgb_led_override);
+    }
+
 };
 
 namespace AP {
