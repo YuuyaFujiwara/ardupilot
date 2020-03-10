@@ -243,7 +243,6 @@ void AP_Notify::add_backends(void)
 #else
                 //QL44 強制的に設定(NAVIO2+RCOutputRGBLed）
 //                ADD_BACKEND(new RCOutputRGBLedInverted(11, 12, 13));//QL44
-                ADD_BACKEND(new RCOutputRGBLedInverted(13, 12, 11));//QL44
                 ADD_BACKEND(new Led_Sysfs("rgb_led0", "rgb_led2", "rgb_led1"));
 #endif
                 break;
