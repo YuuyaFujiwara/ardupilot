@@ -106,9 +106,8 @@ uint32_t RGBLed::get_colour_sequence_obc(void) const
 uint32_t RGBLed::get_colour_sequence(void) const
 {
     // QL44
-    uint32_t tmp_seq = AP_Momimaki::get_colour_sequence();
-    //if( !( tmp_seq & (0x01<<31)) )
-        return tmp_seq;
+    if( custom_led_sequence != 0 )
+        return custom_led_sequence;
 
 
     // initialising pattern
@@ -288,3 +287,6 @@ void RGBLed::update_override(void)
         _set_rgb(0, 0, 0);
     }
 }
+
+// QL44
+uint32_t RGBLed::custom_led_sequence = 0x00000000;

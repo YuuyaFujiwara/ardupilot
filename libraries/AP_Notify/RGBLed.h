@@ -39,6 +39,9 @@ public:
     // handle LED control, only used when LED_OVERRIDE=1
     virtual void handle_led_control(const mavlink_message_t &msg) override;
     
+    //QL44
+    static uint32_t custom_led_sequence;
+
 protected:
     // methods implemented in hardware specific classes
     virtual bool hw_init(void) = 0;

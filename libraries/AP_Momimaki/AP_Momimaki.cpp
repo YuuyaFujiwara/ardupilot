@@ -13,6 +13,7 @@
 #include <SRV_Channel/SRV_Channel.h>
 #include <AP_Logger/AP_Logger.h>
 #include <AP_GPS/AP_GPS.h>
+#include "RGBLed.h"
 
 // ------------------------------
 #define CAM_DEBUG DISABLED
@@ -239,6 +240,9 @@ void AP_Momimaki::update()
         if( fabs( tmp_dbg_spd - _debug_vehicle_speed ) > 0.1  )
         {
 //            led_override_debug( _debug_vehicle_speed );
+
+            RGBLed::custom_led_sequence = get_colour_sequence();
+
             tmp_dbg_spd = _debug_vehicle_speed;
         }
     }
