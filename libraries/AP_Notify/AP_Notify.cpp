@@ -211,7 +211,6 @@ void AP_Notify::add_backends(void)
                 break;
             case Notify_LED_Board:
                 // select the most appropriate built in LED driver type
-#if true
 #if CONFIG_HAL_BOARD == HAL_BOARD_LINUX
   #if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_NAVIO2
                 ADD_BACKEND(new RCOutputRGBLedInverted(10, 11, 12));//QL44  CH11,CH12,CH13
@@ -240,11 +239,7 @@ void AP_Notify::add_backends(void)
 #elif (defined(HAL_GPIO_A_LED_PIN) && defined(HAL_GPIO_B_LED_PIN))
                 ADD_BACKEND(new AP_BoardLED2());
 #endif
-#else
-                //QL44 強制的に設定(NAVIO2+RCOutputRGBLed）
-                ADD_BACKEND(new RCOutputRGBLedInverted(10, 11, 12));//QL44  CH11,CH12,CH13
-                ADD_BACKEND(new Led_Sysfs("rgb_led0", "rgb_led2", "rgb_led1"));
-#endif
+
                 break;
             case Notify_LED_ToshibaLED_I2C_Internal:
                 ADD_BACKEND(new ToshibaLED_I2C(TOSHIBA_LED_I2C_BUS_INTERNAL));
