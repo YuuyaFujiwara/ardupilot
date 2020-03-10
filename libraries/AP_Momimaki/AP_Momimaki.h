@@ -66,7 +66,7 @@ public:
 
 
     // LED点灯パターンを返す
-     static uint32_t get_colour_sequence(void) const；
+     static uint32_t get_colour_sequence(void) const;
 
 private:
 
