@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "RCOutputRGBLed.h"
 
 #include <AP_Math/AP_Math.h>
@@ -79,7 +80,6 @@ bool RCOutputRGBLed::hw_set_rgb(uint8_t red, uint8_t green, uint8_t blue)
         hal.rcout->set_freq(mask, freq_motor);
     }
 
-
     uint16_t usec_duty = get_duty_cycle_for_color(red, usec_period);
     SRV_Channels::set_output_pwm_chan(_red_channel, usec_duty);
 
@@ -90,5 +90,4 @@ bool RCOutputRGBLed::hw_set_rgb(uint8_t red, uint8_t green, uint8_t blue)
     SRV_Channels::set_output_pwm_chan(_blue_channel, usec_duty);
 
     return true;
-
 }
