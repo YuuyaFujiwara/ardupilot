@@ -211,10 +211,10 @@ void AP_Notify::add_backends(void)
                 break;
             case Notify_LED_Board:
                 // select the most appropriate built in LED driver type
-#if false
+#if true
 #if CONFIG_HAL_BOARD == HAL_BOARD_LINUX
   #if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_NAVIO2
-                ADD_BACKEND(new RCOutputRGBLed(11, 12, 13));//QL44
+                ADD_BACKEND(new RCOutputRGBLedInverted(10, 11, 12));//QL44  CH11,CH12,CH13
                 ADD_BACKEND(new Led_Sysfs("rgb_led0", "rgb_led2", "rgb_led1"));
   #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_EDGE
                 ADD_BACKEND(new RCOutputRGBLedInverted(12, 13, 14));
