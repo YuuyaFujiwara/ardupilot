@@ -196,12 +196,12 @@ public: // for QL44
     static void set_rgb_led_override( bool sts )
     {
         if( _singleton != nullptr ) AP_HAL::panic("No instance  of  AP_Notify");
-        _singleton->rgb_led_override = ( sts ? 1 : 0 );
+        _singleton->_rgb_led_override = ( sts ? 1 : 0 );
     }
     static bool set_rgb_led_override(void)
     {
         if( _singleton != nullptr ) AP_HAL::panic("No instance  of  AP_Notify");
-        return (bool)(_singleton->rgb_led_override);
+        return (bool)(_singleton->_rgb_led_override);
     }
 
 };
