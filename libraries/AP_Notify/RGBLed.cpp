@@ -260,7 +260,7 @@ void RGBLed::handle_led_control(const mavlink_message_t &msg)
     }
 
     // QL44
-    gcs().send_text(MAV_SEVERITY_INFO, "RGBLed::handle_led_control( r=%d, g=%d, b=%f )",
+    gcs().send_text(MAV_SEVERITY_INFO, "RGBLed::handle_led_control( r=%d, g=%d, b=%d )",
             static_cast<int>( _led_override.r ),
             static_cast<int>( _led_override.g ),
             static_cast<int>( _led_override.b ) );
