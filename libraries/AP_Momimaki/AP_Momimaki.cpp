@@ -235,7 +235,12 @@ void AP_Momimaki::update()
         // LED_実験
         // _debug_vehicle_speedにてLEDパターン変えてみる
         // for test of LED override
-        led_override_debug( _debug_vehicle_speed );
+        static float tmp_dbg_spd = -9999;
+        if( fabs( tmp_dbg_spd - _debug_vehicle_speed ) > 0.1  )
+        {
+            led_override_debug( _debug_vehicle_speed );
+            tmp_dbg_spd = _debug_vehicle_speed;
+        }
     }
 #endif
     

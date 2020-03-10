@@ -14,6 +14,7 @@
    GNU General Public License for more details.
 
 */
+#include <GCS_MAVLink/GCS.h>
 #include <AP_HAL/AP_HAL.h>
 #include <AP_GPS/AP_GPS.h>
 #include "RGBLed.h"
@@ -257,6 +258,13 @@ void RGBLed::handle_led_control(const mavlink_message_t &msg)
         // not understood
         break;
     }
+
+    // QL44
+    gcs().send_text(MAV_SEVERITY_INFO, "RGBLed::handle_led_control( r=%d, g=%d, b=%f )",
+            static_cast<int>( _led_override.r ),
+            static_cast<int>( _led_override.g ),
+            static_cast<int>( _led_override.b ) );
+
 }
 
 /*
