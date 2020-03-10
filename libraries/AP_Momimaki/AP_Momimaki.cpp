@@ -359,7 +359,7 @@ void AP_Momimaki::led_override_debug( float led_status )
 
 
     // LEDパターン作成
-    uint8_t ledsts = (uint8_t)led_status;
+    uint8_t ledsts = (uint8_t)(led_status + 0.5);
     pack.custom_bytes[0] = ( ledsts & 0x01 ) ? 0 : 255; // _led_override.r;
     pack.custom_bytes[1] = ( ledsts & 0x02 ) ? 0 : 255; // _led_override.g;
     pack.custom_bytes[2] = ( ledsts & 0x04 ) ? 0 : 255; // _led_override.b;
