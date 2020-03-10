@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <GCS_MAVLink/GCS.h>
 #include "RCOutputRGBLed.h"
 
 #include <AP_Math/AP_Math.h>
@@ -80,7 +79,7 @@ bool RCOutputRGBLed::hw_set_rgb(uint8_t red, uint8_t green, uint8_t blue)
         hal.rcout->set_freq(mask, freq_motor);
     }
 
-#if false
+
     uint16_t usec_duty = get_duty_cycle_for_color(red, usec_period);
     SRV_Channels::set_output_pwm_chan(_red_channel, usec_duty);
 
@@ -91,35 +90,5 @@ bool RCOutputRGBLed::hw_set_rgb(uint8_t red, uint8_t green, uint8_t blue)
     SRV_Channels::set_output_pwm_chan(_blue_channel, usec_duty);
 
     return true;
-#else
-    uint16_t usec_duty1 = get_duty_cycle_for_color(red, usec_period);
-    SRV_Channels::set_output_pwm_chan(_red_channel, usec_duty1);
 
-    uint16_t usec_duty2 = get_duty_cycle_for_color(green, usec_period);
-    SRV_Channels::set_output_pwm_chan(_green_channel, usec_duty2);
-
-    uint16_t usec_duty3 = get_duty_cycle_for_color(blue, usec_period);
-    SRV_Channels::set_output_pwm_chan(_blue_channel, usec_duty3);
-
-    static uint16_t tmp1 = 9999;
-    static uint16_t tmp2 = 9999;
-    static uint16_t tmp3 = 9999;
-    static uint16_t tmp4 = 9999;
-
-    if( (tmp1!=usec_duty1)||(tmp2!=usec_duty2)||(tmp3!=usec_duty3)||(tmp4!=usec_period) )
-    {
-        gcs().send_text(MAV_SEVERITY_INFO, "hw_set_rgb( %d, %d, %d, %d )",
-            static_cast<int>( usec_duty1 ),
-            static_cast<int>( usec_duty2 ),
-            static_cast<int>( usec_duty3 ),
-            static_cast<int>( usec_period ) );
-        tmp1 = usec_duty1;
-        tmp2 = usec_duty2;
-        tmp3 = usec_duty3;
-        tmp4 = usec_period;
-    }
-
-
-    return true;
-#endif
 }
