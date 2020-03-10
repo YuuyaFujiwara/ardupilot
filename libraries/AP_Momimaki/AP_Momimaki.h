@@ -65,6 +65,9 @@ public:
     }
 
 
+    // LED点灯パターンを返す
+     static uint32_t get_colour_sequence(void) const；
+
 private:
 
     static AP_Momimaki *_singleton;
@@ -104,6 +107,8 @@ private:
     void reset_led_override(void);
     // LED overrideにて点灯する。
     void set_led_override( float led_status );
+
+
 
     
 //    Mode::Number    _mode_number;

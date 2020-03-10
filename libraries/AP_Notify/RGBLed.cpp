@@ -20,6 +20,7 @@
 #include <AP_GPS/AP_GPS.h>
 #include "RGBLed.h"
 #include "AP_Notify.h"
+#include "AP_Momimaki.h"
 
 extern const AP_HAL::HAL& hal;
 
@@ -104,6 +105,12 @@ uint32_t RGBLed::get_colour_sequence_obc(void) const
 // _scheduled_update - updates _red, _green, _blue according to notify flags
 uint32_t RGBLed::get_colour_sequence(void) const
 {
+    // QL44
+    uint32_t tmp_seq = AP_Momimaki::get_colour_sequence();
+    //if( !( tmp_seq & (0x01<<31)) )
+        return tmp_seq;
+
+
     // initialising pattern
     if (AP_Notify::flags.initialising) {
         return sequence_initialising;
