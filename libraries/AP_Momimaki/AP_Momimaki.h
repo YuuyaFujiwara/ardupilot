@@ -98,7 +98,13 @@ private:
     void pwm_output( SRV_Channel::Aux_servo_function_t function, float value );
 
     // for test of LED override
-    void led_override_debug( float led_statrus );
+    //void led_override_debug( float led_statrus );
+
+    // LED overrideを解除する
+    void reset_led_override(void);
+    // LED overrideにて点灯する。
+    void set_led_override( float led_status )
+
     
 //    Mode::Number    _mode_number;
     bool            _is_in_auto_mode;   // true if in AUTO mode
