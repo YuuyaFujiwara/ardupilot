@@ -315,7 +315,7 @@ const uint32_t sequence_test = DEFINE_COLOUR_SEQUENCE(RED,GREED,BLUE,RED,GREED,B
 // LED点灯パターンを返す
 // RGBLed::get_colour_sequenceより呼び出し。
 // 戻り値最上位bitがONの場合、デフォルトパターンで点灯する。
-uint32_t AP_Momimaki::get_colour_sequence(void) const
+uint32_t AP_Momimaki::get_colour_sequence(void)
 {
     // とりあえず、色ぐるぐる
     return sequence_test;
