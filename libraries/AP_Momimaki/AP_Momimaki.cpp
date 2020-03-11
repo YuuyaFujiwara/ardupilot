@@ -13,7 +13,6 @@
 #include <SRV_Channel/SRV_Channel.h>
 #include <AP_Logger/AP_Logger.h>
 #include <AP_GPS/AP_GPS.h>
-//#include <AP_Notify/RGBLed.h>
 #include <AP_Notify/AP_Notify.h>
 
 // ------------------------------

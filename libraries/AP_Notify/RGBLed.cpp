@@ -104,12 +104,6 @@ uint32_t RGBLed::get_colour_sequence_obc(void) const
 // _scheduled_update - updates _red, _green, _blue according to notify flags
 uint32_t RGBLed::get_colour_sequence(void) const
 {
-#if false
-    // QL44
-    if( custom_led_sequence != 0 )
-        return custom_led_sequence;
-#endif
-
     // QL44
     if( AP_Notify::flags.momimaki_status != 0   )
     {
