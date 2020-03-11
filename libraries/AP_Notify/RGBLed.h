@@ -40,7 +40,7 @@ public:
     virtual void handle_led_control(const mavlink_message_t &msg) override;
     
     //QL44
-    static uint32_t custom_led_sequence;
+//    static uint32_t custom_led_sequence;
 
 protected:
     // methods implemented in hardware specific classes
@@ -106,6 +106,15 @@ private:
     const uint32_t sequence_disarmed_good_dgps = DEFINE_COLOUR_SEQUENCE_ALTERNATE(GREEN,OFF);
     const uint32_t sequence_disarmed_good_gps = DEFINE_COLOUR_SEQUENCE_SLOW(GREEN);
     const uint32_t sequence_disarmed_bad_gps = DEFINE_COLOUR_SEQUENCE_SLOW(BLUE);
+
+    // QL44
+    const uint32_t sequence_momimaki_doing = DEFINE_COLOUR_SEQUENCE_SOLID(GREEN);   // 籾播き中
+    const uint32_t sequence_momimaki_standby = DEFINE_COLOUR_SEQUENCE_SLOW(GREEN);  // 籾播き中（中断）
+    const uint32_t sequence_momimaki_empty = DEFINE_COLOUR_SEQUENCE(RED,RED,OFF,OFF,RED,RED,GREEN,GREEN,GREEN,GREEN); //籾なし
+    const uint32_t sequence_momimaki_error = DEFINE_COLOUR_SEQUENCE(RED,RED,RED,YELLOW,YELLOW,RED,RED,RED,YELLOW,YELLOW); //エラー
+    const uint32_t sequence_momimaki_test = DEFINE_COLOUR_SEQUENCE(RED,GREEN,BLUE,RED,GREEN,BLUE,RED,GREEN,BLUE,WHITE);//QL44 テスト
+
+
 
     uint8_t last_step;
     enum rgb_source_t {

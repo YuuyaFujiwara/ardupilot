@@ -13,7 +13,7 @@
 #include <SRV_Channel/SRV_Channel.h>
 #include <AP_Logger/AP_Logger.h>
 #include <AP_GPS/AP_GPS.h>
-#include <AP_Notify/RGBLed.h>
+//#include <AP_Notify/RGBLed.h>
 #include <AP_Notify/AP_Notify.h>
 
 // ------------------------------
@@ -242,7 +242,8 @@ void AP_Momimaki::update()
         {
 //            led_override_debug( _debug_vehicle_speed );
 
-            RGBLed::custom_led_sequence = get_colour_sequence();
+//            RGBLed::custom_led_sequence = get_colour_sequence();
+            AP_Notify::flags.momimaki_status = (uint8_t)(_debug_vehicle_speed+0.5);
 
             tmp_dbg_spd = _debug_vehicle_speed;
         }
@@ -287,7 +288,7 @@ void AP_Momimaki::update()
     
 }
 
-
+#if false
 // LED点灯パターンのための定義
 // RGBLed.hより
 #define DEFINE_COLOUR_SEQUENCE(S0, S1, S2, S3, S4, S5, S6, S7, S8, S9)  \
@@ -321,7 +322,7 @@ uint32_t AP_Momimaki::get_colour_sequence(void)
     // とりあえず、色ぐるぐる
     return sequence_test;
 }
-
+#endif
 
 
 

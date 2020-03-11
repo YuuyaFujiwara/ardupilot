@@ -104,9 +104,29 @@ uint32_t RGBLed::get_colour_sequence_obc(void) const
 // _scheduled_update - updates _red, _green, _blue according to notify flags
 uint32_t RGBLed::get_colour_sequence(void) const
 {
+#if false
     // QL44
     if( custom_led_sequence != 0 )
         return custom_led_sequence;
+#endif
+
+    // QL44
+    if( AP_Notify::flags.momimaki_status != 0   )
+    {
+        switch( AP_Notify::flags.momimaki_status )
+        {
+        case 1:
+            return sequence_momimaki_doing;     // 籾播き中
+        case 2:
+            return sequence_momimaki_standby;   // 籾播き中（中断）
+        case 3:
+            return sequence_momimaki_empty;     // 籾なし
+        case 4:
+            return sequence_momimaki_error;     // エラー
+        default:
+            return sequence_momimaki_test;      // QL44 テスト
+        }
+    }
 
 
     // initialising pattern
@@ -288,4 +308,4 @@ void RGBLed::update_override(void)
 }
 
 // QL44
-uint32_t RGBLed::custom_led_sequence = 0x00000000;
+//uint32_t RGBLed::custom_led_sequence = 0x00000000;

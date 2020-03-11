@@ -64,9 +64,10 @@ public:
         _is_in_auto_mode = enable;
     }
 
-
+#if false
     // LED点灯パターンを返す
       uint32_t get_colour_sequence(void);
+#endif
 
 private:
 
