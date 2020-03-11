@@ -199,6 +199,51 @@ void AP_Momimaki::status_check( bool& feeder_sts, bool& spreader_sts)
 
 }
 
+
+/*
+ * LED点灯状態を決める。
+ * 戻り値：LED点灯パターン（実際の点灯パターンは、AP_Notify::flags.momimaki_status経由でRGBLed::get_colour_sequence()にて決める。
+ */
+uint8_t AP_Momimaki::get_led_status( void )
+{
+    // AUTOモードでなければ、システムデフォルトのまま
+    if( !_is_in_auto_mode )
+        return 0;   //システムデフォルト
+
+    // エラーチェック
+    if(     is_zero(_density) ||
+            is_zero(_radius)  ||
+            ( _angle == 0  )  ||
+            is_zero(_feeder_max_rpm)  ||
+            is_zero(_feed_num_par_rotate)  ||
+            is_zero(_spreader_max_radius))
+    {
+        return 4;   // エラー
+    }
+
+    // 籾播き中、籾播き待機中
+    if( _enable_spreader )
+    {   // 籾播き稼働中
+
+        if( _enable_feeder )
+            return 1;   // 籾播き中
+        else
+            return 2;   // 籾播き中断中
+    }
+
+    // 籾なし
+    // ※判定未実装
+    if( false )
+        return 3;   // 籾なし
+
+
+    // その他
+    return 0;
+
+}
+
+
+
 /*  update; triggers by distance moved
 */
 void AP_Momimaki::update()
@@ -243,7 +288,7 @@ void AP_Momimaki::update()
 //            led_override_debug( _debug_vehicle_speed );
 
 //            RGBLed::custom_led_sequence = get_colour_sequence();
-            AP_Notify::flags.momimaki_status = (uint8_t)(_debug_vehicle_speed+0.5);
+//            AP_Notify::flags.momimaki_status = (uint8_t)(_debug_vehicle_speed+0.5);
 
             tmp_dbg_spd = _debug_vehicle_speed;
         }
@@ -285,45 +330,9 @@ void AP_Momimaki::update()
         pwm_output( SRV_Channel::k_momimaki_spreader, 0 );
     }
     
-    
+    // LED状態決める
+    AP_Notify::flags.momimaki_status = get_led_status();
 }
-
-#if false
-// LED点灯パターンのための定義
-// RGBLed.hより
-#define DEFINE_COLOUR_SEQUENCE(S0, S1, S2, S3, S4, S5, S6, S7, S8, S9)  \
-    ((S0) << (0*3) | (S1) << (1*3) | (S2) << (2*3) | (S3) << (3*3) | (S4) << (4*3) | (S5) << (5*3) | (S6) << (6*3) | (S7) << (7*3) | (S8) << (8*3) | (S9) << (9*3))
-
-#define DEFINE_COLOUR_SEQUENCE_SLOW(colour)                       \
-    DEFINE_COLOUR_SEQUENCE(colour,colour,colour,colour,colour,OFF,OFF,OFF,OFF,OFF)
-#define DEFINE_COLOUR_SEQUENCE_FAILSAFE(colour) \
-    DEFINE_COLOUR_SEQUENCE(YELLOW,YELLOW,YELLOW,YELLOW,YELLOW,colour,colour,colour,colour,colour)
-#define DEFINE_COLOUR_SEQUENCE_SOLID(colour) \
-    DEFINE_COLOUR_SEQUENCE(colour,colour,colour,colour,colour,colour,colour,colour,colour,colour)
-#define DEFINE_COLOUR_SEQUENCE_ALTERNATE(colour1, colour2)                      \
-    DEFINE_COLOUR_SEQUENCE(colour1,colour2,colour1,colour2,colour1,colour2,colour1,colour2,colour1,colour2)
-
-#define OFF    0
-#define BLUE   1
-#define GREEN  2
-#define RED    4
-#define YELLOW (RED|GREEN)
-#define WHITE (RED|GREEN|BLUE)
-
-const uint32_t sequence_test = DEFINE_COLOUR_SEQUENCE(RED,GREEN,BLUE,RED,GREEN,BLUE,RED,GREEN,BLUE,WHITE);
-
-
-
-// LED点灯パターンを返す
-// RGBLed::get_colour_sequenceより呼び出し。
-// 戻り値最上位bitがONの場合、デフォルトパターンで点灯する。
-uint32_t AP_Momimaki::get_colour_sequence(void)
-{
-    // とりあえず、色ぐるぐる
-    return sequence_test;
-}
-#endif
-
 
 
 /*
@@ -420,7 +429,7 @@ void AP_Momimaki::led_override_debug( uint8_t led_color )
 }
 #endif
 
-
+#if false
 // LED overrideを解除する
 void AP_Momimaki::reset_led_override(void)
 {
@@ -464,7 +473,7 @@ void AP_Momimaki::set_led_override( float led_status )
 
 
 }
-
+#endif
 
 // singleton instance
 AP_Momimaki *AP_Momimaki::_singleton;

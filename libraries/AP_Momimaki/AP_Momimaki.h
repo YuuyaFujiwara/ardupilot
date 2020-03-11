@@ -95,6 +95,10 @@ private:
 
     void status_check( bool& feeder_sts, bool& spreader_sts);
 
+     // LED点灯状態を決める。
+    uint8_t get_led_status( void );
+
+
     float Calc_Momiokuri_FeedRate( float tgt_num_per_sec );
 
     float Calc_Momiokuri_SpreadRate(void);
@@ -104,11 +108,12 @@ private:
     // for test of LED override
     //void led_override_debug( float led_statrus );
 
+#if false
     // LED overrideを解除する
     void reset_led_override(void);
     // LED overrideにて点灯する。
     void set_led_override( float led_status );
-
+#endif
 
 
     
