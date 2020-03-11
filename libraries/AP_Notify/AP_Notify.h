@@ -100,6 +100,7 @@ public:
         bool waiting_for_throw;   // true when copter is in THROW mode and waiting to detect the user hand launch
         bool powering_off;        // true when the vehicle is powering off
         bool video_recording;     // true when the vehicle is recording video
+        uint8_t momimaki_status;  //QL44
     };
 
     /// notify_events_type - bitmask of active events.

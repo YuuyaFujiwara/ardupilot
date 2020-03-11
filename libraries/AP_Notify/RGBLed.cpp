@@ -20,7 +20,6 @@
 #include <AP_GPS/AP_GPS.h>
 #include "RGBLed.h"
 #include "AP_Notify.h"
-#include "AP_Momimaki.h"
 
 extern const AP_HAL::HAL& hal;
 
