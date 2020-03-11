@@ -424,14 +424,14 @@ void AP_Momimaki::led_override_debug( uint8_t led_color )
 void AP_Momimaki::reset_led_override(void)
 {
     // LED overrideを解除する
-    AP_Notyfy::set_rgb_led_override(false);
+    AP_Notify::set_rgb_led_override(false);
 }
 
 // LED overrideにて点灯する。
 void AP_Momimaki::set_led_override( float led_status )
 {
     // LED overrideを設定する
-    AP_Notyfy::set_rgb_led_override(true);
+    AP_Notify::set_rgb_led_override(true);
 
 
     // メッセージ経由で点灯パターンを設定する
