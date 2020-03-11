@@ -97,12 +97,26 @@ private:
     const uint32_t sequence_failsafe_gps_glitching = DEFINE_COLOUR_SEQUENCE_FAILSAFE(BLUE);
     const uint32_t sequence_failsafe_radio_or_battery = DEFINE_COLOUR_SEQUENCE_FAILSAFE(OFF);
 
+#if false
     const uint32_t sequence_armed = DEFINE_COLOUR_SEQUENCE_SOLID(GREEN);
     const uint32_t sequence_armed_nogps = DEFINE_COLOUR_SEQUENCE_SOLID(BLUE);
     const uint32_t sequence_prearm_failing = DEFINE_COLOUR_SEQUENCE(YELLOW,YELLOW,OFF,OFF,YELLOW,YELLOW,OFF,OFF,OFF,OFF);
     const uint32_t sequence_disarmed_good_dgps = DEFINE_COLOUR_SEQUENCE_ALTERNATE(GREEN,OFF);
     const uint32_t sequence_disarmed_good_gps = DEFINE_COLOUR_SEQUENCE_SLOW(GREEN);
     const uint32_t sequence_disarmed_bad_gps = DEFINE_COLOUR_SEQUENCE_SLOW(BLUE);
+
+
+#else
+    // QL44
+    // デフォルトLED点灯パターンを変更
+    // 緑LEDを、籾播き状態表示に使用するため
+    const uint32_t sequence_armed = DEFINE_COLOUR_SEQUENCE_SOLID(BLUE);                         // 緑点灯=>青点灯に変更
+    const uint32_t sequence_armed_nogps = DEFINE_COLOUR_SEQUENCE(BLUE,BLUE,BLUE,BLUE,OFF,BLUE,BLUE,BLUE,BLUE,OFF); // 青点灯=>青青青青OFFに変更
+    const uint32_t sequence_prearm_failing = DEFINE_COLOUR_SEQUENCE(YELLOW,YELLOW,OFF,OFF,YELLOW,YELLOW,OFF,OFF,OFF,OFF);
+    const uint32_t sequence_disarmed_good_dgps = DEFINE_COLOUR_SEQUENCE_ALTERNATE(BLUE,OFF);    // 緑点滅（高速)=>青点滅（高速)
+    const uint32_t sequence_disarmed_good_gps = DEFINE_COLOUR_SEQUENCE_SLOW(GREEN);             //緑点滅(SLOW)=>青点滅(SLOW)
+    const uint32_t sequence_disarmed_bad_gps = DEFINE_COLOUR_SEQUENCE(BLUE,BLUE,BLUE,BLUE,BLUE,RED,RED,RED,RED,RED);    //青点滅=>青赤点滅
+#endif
 
     // QL44
     const uint32_t sequence_momimaki_doing = DEFINE_COLOUR_SEQUENCE_SOLID(GREEN);   // 籾播き中
