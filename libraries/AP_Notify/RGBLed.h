@@ -114,7 +114,7 @@ private:
     const uint32_t sequence_armed_nogps = DEFINE_COLOUR_SEQUENCE(BLUE,BLUE,BLUE,BLUE,OFF,BLUE,BLUE,BLUE,BLUE,OFF); // 青点灯=>青青青青OFFに変更
     const uint32_t sequence_prearm_failing = DEFINE_COLOUR_SEQUENCE(YELLOW,YELLOW,OFF,OFF,YELLOW,YELLOW,OFF,OFF,OFF,OFF);
     const uint32_t sequence_disarmed_good_dgps = DEFINE_COLOUR_SEQUENCE_ALTERNATE(BLUE,OFF);    // 緑点滅（高速)=>青点滅（高速)
-    const uint32_t sequence_disarmed_good_gps = DEFINE_COLOUR_SEQUENCE_SLOW(GREEN);             //緑点滅(SLOW)=>青点滅(SLOW)
+    const uint32_t sequence_disarmed_good_gps = DEFINE_COLOUR_SEQUENCE_SLOW(BLUE);             //緑点滅(SLOW)=>青点滅(SLOW)
     const uint32_t sequence_disarmed_bad_gps = DEFINE_COLOUR_SEQUENCE(BLUE,BLUE,BLUE,BLUE,BLUE,RED,RED,RED,RED,RED);    //青点滅=>青赤点滅
 #endif
 
