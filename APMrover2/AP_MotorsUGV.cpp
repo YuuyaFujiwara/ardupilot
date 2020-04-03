@@ -579,9 +579,15 @@ void AP_MotorsUGV::output_regular(bool armed, float ground_speed, float steering
                     steering *= constrain_float(_vector_throttle_base / fabsf(throttle), 0.0f, 1.0f);
                 }
             } else {
+#if false
                 // scale steering down as speed increase above MOT_SPD_SCA_BASE (1 m/s default)
                 if (is_positive(_speed_scale_base) && (fabsf(ground_speed) > _speed_scale_base)) {
                     steering *= (_speed_scale_base / fabsf(ground_speed));
+#else
+                    // for QL44
+                    if (is_positive(_speed_scale_base) ) {
+                        steering *= _speed_scale_base;
+#endif
                 } else {
                     // regular steering rover at low speed so set limits to stop I-term build-up in controllers
                     if (!have_skid_steering()) {
