@@ -606,6 +606,20 @@ void AP_MotorsUGV::output_regular(bool armed, float ground_speed, float steering
                 steering *= -1.0f;
             }
         }
+
+#if true
+        // QL44
+        //
+        //if( _vector_throttle_base < 0.0f && ( fabsf(steering) > -_vector_throttle_base) )
+        if( _vector_throttle_base < -0.001f )
+        {
+            float tmp_throttle_rate = -_vector_throttle_base;
+            throttle *= ( 1.0 + fabsf( steering ) * tmp_throttle_rate / ( 100.0 * 100.0 ));
+        }
+#endif
+
+
+
         output_throttle(SRV_Channel::k_throttle, throttle);
     } else {
         // handle disarmed case
